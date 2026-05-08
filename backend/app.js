@@ -5,6 +5,7 @@ import resumeRoutes from "./routes/resume.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import verificationRoutes from "./phase2-verification/routes/verification.routes.js";
+import newVerificationRoutes from "./routes/verification.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -14,6 +15,8 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json({ limit: "1mb" }));
@@ -26,7 +29,7 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/students", studentRoutes);
-app.use("/api/verify", verificationRoutes);
+app.use("/api/verification", newVerificationRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

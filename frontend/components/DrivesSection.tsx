@@ -16,8 +16,15 @@ interface Drive {
   lockReasons?: string[];
 }
 
+interface DriveEntry {
+  drive: Drive;
+  lockReasons: string[];
+}
+
+type DrivesSectionDrive = Drive | DriveEntry;
+
 interface DrivesSectionProps {
-  drives: Drive[];
+  drives: DrivesSectionDrive[];
   studentId: string;
   isLocked: boolean;
   onApplySuccess: () => void;
@@ -64,8 +71,10 @@ export default function DrivesSection({
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-        {drives.map((drive) => (
-          <div key={drive._id} className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
+        {drives.map((entry) => {
+          const drive = "drive" in entry ? entry.drive : entry;
+          return (
+            <div key={drive._id} className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-900">{drive.company}</h3>
@@ -141,8 +150,9 @@ export default function DrivesSection({
                 {applyingDriveId === drive._id ? "Applying..." : "Apply Now"}
               </button>
             )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

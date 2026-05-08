@@ -1,56 +1,241 @@
-import {
-  runCertificateVerification,
-  runFullVerification,
-  runGithubVerification,
-} from "../services/verification.service.js";
-import { buildHttpError } from "../phase2-verification/utils/helpers.js";
+import { Verification } from "../models/verification.model.js";
+import { runFullVerification } from "../services/verification.service.js";
+import { Student } from "../models/student.model.js";
+import { AppError } from "../utils/AppError.js";
+import { logger } from "../phase2-verification/utils/logger.js";
 
-export const verifyGithubController = async (req, res, next) => {
+// ─── GET /api/verification/:studentId ──────────────────────────────────────
+export const getVerificationController = async (req, res, next) => {
   try {
-    const { githubUsername, skills = [], projects = [] } = req.body || {};
+    const { studentId } = req.params;
+    let verification = await Verification.findOne({ studentId });
 
-    if (!Array.isArray(skills) || !Array.isArray(projects)) {
-      throw buildHttpError("skills and projects must be arrays", 400);
+    // Return a default "Not Started" object if no record yet
+    if (!verification) {
+      return res.json({
+        success: true,
+        data: {
+          studentId,
+          verificationStatus: "Not Started",
+          overallScore: 0,
+          educationScore: 0,
+          skillsScore: 0,
+          certificationScore: 0,
+          projectScore: 0,
+          identityScore: 0,
+          verifiedItems: [],
+          rejectedItems: [],
+          feedback: [],
+          uploadedFiles: [],
+          linkedinUrl: "",
+          githubUrl: "",
+          portfolioUrl: "",
+          verificationHistory: [],
+          lastVerifiedAt: null,
+        },
+      });
     }
 
-    const result = await runGithubVerification({ githubUsername, skills, projects });
-    res.status(200).json({ success: true, data: result });
-  } catch (error) {
-    next(error);
+    res.json({ success: true, data: verification });
+  } catch (err) {
+    next(err);
   }
 };
 
-export const verifyCertificatesController = async (req, res, next) => {
+// ─── POST /api/verification/start ──────────────────────────────────────────
+export const startVerificationController = async (req, res, next) => {
   try {
-    const { certifications = [], certificateLinks = [], candidateName = "" } = req.body || {};
+    const studentId = req.user.studentId;
 
-    if (!Array.isArray(certifications) || !Array.isArray(certificateLinks)) {
-      throw buildHttpError("certifications and certificateLinks must be arrays", 400);
+    let verification = await Verification.findOne({ studentId });
+    if (!verification) {
+      verification = await Verification.create({
+        studentId,
+        verificationStatus: "In Progress",
+      });
+    } else {
+      verification.verificationStatus = "In Progress";
+      await verification.save();
     }
 
-    const result = await runCertificateVerification({
-      certifications,
-      certificateLinks,
-      candidateName,
+    res.json({ success: true, data: verification });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/verification/upload ─────────────────────────────────────────
+export const uploadFileController = async (req, res, next) => {
+  try {
+    const studentId = req.user.studentId;
+
+    // upsert verification record
+    let verification = await Verification.findOne({ studentId });
+    if (!verification) {
+      verification = await Verification.create({ studentId, verificationStatus: "In Progress" });
+    }
+
+    if (!req.file) {
+      return next(new AppError("No file uploaded.", 400));
+    }
+
+    const fileRecord = {
+      fileName: req.file.originalname,
+      url: `/uploads/${req.file.filename}`,
+      type: req.file.mimetype,
+      uploadedAt: new Date(),
+    };
+
+    verification.uploadedFiles.push(fileRecord);
+    await verification.save();
+
+    res.json({ success: true, data: fileRecord });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── PATCH /api/verification/update ────────────────────────────────────────
+export const updateVerificationController = async (req, res, next) => {
+  try {
+    const studentId = req.user.studentId;
+    const { linkedinUrl, githubUrl, portfolioUrl } = req.body;
+
+    let verification = await Verification.findOne({ studentId });
+    if (!verification) {
+      verification = await Verification.create({ studentId, verificationStatus: "In Progress" });
+    }
+
+    if (linkedinUrl !== undefined) verification.linkedinUrl = linkedinUrl;
+    if (githubUrl !== undefined) verification.githubUrl = githubUrl;
+    if (portfolioUrl !== undefined) verification.portfolioUrl = portfolioUrl;
+    await verification.save();
+
+    res.json({ success: true, data: verification });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/verification/submit ─────────────────────────────────────────
+export const submitVerificationController = async (req, res, next) => {
+  try {
+    const studentId = req.user.studentId;
+
+    // Fetch student to get resumeId
+    const student = await Student.findById(studentId);
+    if (!student) return next(new AppError("Student not found.", 404));
+    if (!student.resumeId) {
+      return next(new AppError("Please upload your resume first.", 400));
+    }
+
+    let verification = await Verification.findOne({ studentId });
+    if (!verification) {
+      verification = await Verification.create({ studentId, verificationStatus: "In Progress" });
+    }
+
+    // Run existing full verification pipeline
+    const result = await runFullVerification({ resumeId: student.resumeId });
+
+    // Map pipeline results → our fields
+    const overallScore = Math.round(result.confidence?.confidenceScore ?? 0);
+    const certScore = Math.round(result.certificateAnalysis?.overallScore ?? 0);
+    const githubScore = Math.round(result.githubAnalysis?.overallScore ?? 0);
+    const aiScore = Math.round(result.aiAnalysis?.overallScore ?? 0);
+
+    // Derive a simple status from confidence
+    let status = "Partially Verified";
+    if (overallScore >= 80) status = "Verified";
+    else if (overallScore >= 50) status = "Partially Verified";
+    else if (overallScore > 0) status = "In Progress";
+    else status = "Rejected";
+
+    const feedback = [
+      ...(result.aiAnalysis?.concerns ?? []),
+      ...(result.aiAnalysis?.suggestions ?? []),
+    ];
+
+    verification.overallScore = overallScore;
+    verification.certificationScore = certScore;
+    verification.projectScore = githubScore;
+    verification.skillsScore = aiScore;
+    verification.educationScore = Math.round((certScore + aiScore) / 2);
+    verification.identityScore = Math.round(overallScore * 0.8);
+    verification.verificationStatus = status;
+    verification.feedback = feedback;
+    verification.lastVerifiedAt = new Date();
+    verification.verificationHistory.push({
+      status,
+      score: overallScore,
+      timestamp: new Date(),
+      feedback,
     });
 
-    res.status(200).json({ success: true, data: result });
-  } catch (error) {
-    next(error);
+    await verification.save();
+
+    // Also update student confidence data for backward compatibility
+    await Student.findByIdAndUpdate(studentId, {
+      verificationStatus: status === "Verified" ? "completed" : "in-progress",
+      "confidenceData.score": overallScore,
+      "confidenceData.calculatedAt": new Date(),
+    });
+
+    logger.info("Verification submitted", { studentId, overallScore, status });
+
+    res.json({ success: true, data: verification });
+  } catch (err) {
+    next(err);
   }
 };
 
+// ─── GET /api/verification/history/:studentId ──────────────────────────────
+export const getHistoryController = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+    const verification = await Verification.findOne({ studentId });
+    if (!verification) return res.json({ success: true, data: [] });
+    res.json({ success: true, data: verification.verificationHistory });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/verification/github ─────────────────────────────────────────
+export const verifyGithubController = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "GitHub verification endpoint",
+      data: {},
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/verification/certificates ──────────────────────────────────
+export const verifyCertificatesController = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "Certificate verification endpoint",
+      data: {},
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/verification/full ───────────────────────────────────────────
 export const verifyFullController = async (req, res, next) => {
   try {
-    const { resumeId } = req.body || {};
-
-    if (!resumeId) {
-      throw buildHttpError("resumeId is required", 400);
-    }
-
-    const result = await runFullVerification({ resumeId });
-    res.status(200).json({ success: true, data: result });
-  } catch (error) {
-    next(error);
+    const result = await runFullVerification(req.body);
+    res.status(200).json({
+      success: true,
+      message: "Full verification completed",
+      data: result,
+    });
+  } catch (err) {
+    next(err);
   }
 };

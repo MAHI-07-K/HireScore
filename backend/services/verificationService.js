@@ -66,7 +66,7 @@ const buildVerificationModuleUrl = () => {
   }
 
   const port = process.env.PORT || 5000;
-  return `http://127.0.0.1:${port}/api/verify/full`;
+  return `http://127.0.0.1:${port}/api/verification/full`;
 };
 
 export const callExistingVerificationModule = async ({ resume }) => {

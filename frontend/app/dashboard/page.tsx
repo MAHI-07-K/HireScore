@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { studentAPI } from "@/services/api";
-import { ResumeUploadForm } from "@/components/ResumeUploadForm";
 import DrivesSection from "@/components/DrivesSection";
 import VerificationStatus from "@/components/VerificationStatus";
 
@@ -25,28 +24,41 @@ interface DashboardData {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { student, logout } = useAuth();
+  const { student, token, isLoading: isAuthLoading, logout } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    if (!student) {
+    if (isAuthLoading) return;
+
+    if (!student || !token) {
       router.push("/auth");
       return;
     }
 
-    fetchDashboard();
-  }, [student, router]);
+    fetchDashboard(student.studentId);
+  }, [student, token, isAuthLoading, router]);
 
-  const fetchDashboard = async () => {
+  const fetchDashboard = async (studentId = student?.studentId) => {
+    if (!studentId || !token) {
+      logout();
+      router.push("/auth");
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const response = await studentAPI.getDashboard(student?.studentId);
+      const response = await studentAPI.getDashboard(studentId);
       setDashboardData(response.data.data);
       setError("");
     } catch (err: any) {
+      if (err.response?.status === 401) {
+        logout();
+        router.push("/auth");
+        return;
+      }
+
       setError(err.response?.data?.message || "Failed to load dashboard");
     } finally {
       setIsLoading(false);
@@ -58,7 +70,7 @@ export default function Dashboard() {
     router.push("/auth");
   };
 
-  if (isLoading) {
+  if (isAuthLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -127,6 +139,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Verification Status */}
           <VerificationStatus
+            studentId={student?.studentId || ""}
+            resumeUploaded={!!dashboardData?.profile?.resumeId}
             verificationStatus={dashboardData?.verificationStatus || "pending"}
             confidenceScore={dashboardData?.confidenceScore || 0}
             riskLevel={dashboardData?.riskLevel || "unknown"}
@@ -191,62 +205,21 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6 flex gap-4 border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab("resume")}
-            className={`py-3 px-4 font-semibold transition ${
-              activeTab === "resume"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Resume Upload
-          </button>
-          <button
-            onClick={() => setActiveTab("drives")}
-            className={`py-3 px-4 font-semibold transition ${
-              activeTab === "drives"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Available Drives ({dashboardData?.availableDrives.length || 0})
-          </button>
-          <button
-            onClick={() => setActiveTab("locked")}
-            className={`py-3 px-4 font-semibold transition ${
-              activeTab === "locked"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            Locked Drives ({dashboardData?.lockedDrives.length || 0})
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === "resume" && (
-          <ResumeUploadForm />
-        )}
-
-        {activeTab === "drives" && (
+        <div className="space-y-8">
           <DrivesSection
             drives={dashboardData?.availableDrives || []}
             studentId={student?.studentId || ""}
             isLocked={false}
             onApplySuccess={fetchDashboard}
           />
-        )}
 
-        {activeTab === "locked" && (
           <DrivesSection
             drives={dashboardData?.lockedDrives || []}
             studentId={student?.studentId || ""}
             isLocked={true}
             onApplySuccess={fetchDashboard}
           />
-        )}
+        </div>
       </main>
     </div>
   );

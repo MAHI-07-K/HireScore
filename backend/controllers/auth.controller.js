@@ -4,6 +4,29 @@ import { AppError } from "../utils/AppError.js";
 import { generateToken } from "../middleware/auth.middleware.js";
 
 /**
+ * Map student response - transforms MongoDB _id to studentId
+ */
+const mapStudentResponse = (student) => ({
+  studentId: student._id,
+  fullName: student.fullName,
+  rollNumber: student.rollNumber,
+  email: student.email,
+  college: student.college,
+  branch: student.branch,
+  cgpa: student.cgpa,
+  resumeUrl: student.resumeUrl,
+  resumeId: student.resumeId,
+  verificationStatus: student.verificationStatus,
+  confidenceData: student.confidenceData,
+  verificationResults: student.verificationResults,
+  isEligibleForDrives: student.isEligibleForDrives,
+  hireScore: student.hireScore,
+  appliedDrives: student.appliedDrives,
+  createdAt: student.createdAt,
+  updatedAt: student.updatedAt,
+});
+
+/**
  * Register a new student
  * POST /api/auth/register
  */
@@ -47,8 +70,7 @@ export const registerStudentController = async (req, res, next) => {
     const token = generateToken(student._id);
 
     // Return response (exclude password)
-    const studentResponse = student.toObject();
-    delete studentResponse.password;
+    const studentResponse = mapStudentResponse(student);
 
     res.status(201).json({
       success: true,
@@ -105,9 +127,8 @@ export const loginStudentController = async (req, res, next) => {
     // Generate token
     const token = generateToken(student._id);
 
-    // Return response (exclude password)
-    const studentResponse = student.toObject();
-    delete studentResponse.password;
+    // Return response with mapped fields
+    const studentResponse = mapStudentResponse(student);
 
     res.status(200).json({
       success: true,
@@ -134,9 +155,11 @@ export const getStudentProfileController = async (req, res, next) => {
       throw new AppError("Student not found", 404);
     }
 
+    const studentResponse = mapStudentResponse(student);
+
     res.status(200).json({
       success: true,
-      data: student,
+      data: studentResponse,
     });
   } catch (error) {
     next(error);

@@ -1,7 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { authAPI } from "@/services/api";
+import {
+  authAPI,
+  clearStoredAuthToken,
+  getStoredAuthToken,
+  setStoredAuthToken,
+} from "@/services/api";
 
 interface Student {
   studentId: string;
@@ -42,10 +47,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Initialize auth from localStorage
   useEffect(() => {
-    const savedToken = localStorage.getItem("authToken");
+    const savedToken = getStoredAuthToken();
     const savedStudent = localStorage.getItem("student");
 
     if (savedToken && savedStudent) {
+      setStoredAuthToken(savedToken);
       setToken(savedToken);
       setStudent(JSON.parse(savedStudent));
     }
@@ -59,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.register(data);
       const { token, student } = response.data.data;
 
-      localStorage.setItem("authToken", token);
+      setStoredAuthToken(token);
       localStorage.setItem("student", JSON.stringify(student));
 
       setToken(token);
@@ -77,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.login({ rollNumber, password });
       const { token, student } = response.data.data;
 
-      localStorage.setItem("authToken", token);
+      setStoredAuthToken(token);
       localStorage.setItem("student", JSON.stringify(student));
 
       setToken(token);
@@ -90,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
+    clearStoredAuthToken();
     localStorage.removeItem("student");
     setToken(null);
     setStudent(null);

@@ -199,7 +199,10 @@ export const getLockedDrives = async (studentId) => {
     }
 
     const lockedDrives = await getLockedDrivesForStudent(student);
-    return lockedDrives;
+    return lockedDrives.map((item) => ({
+      drive: item.drive,
+      lockReasons: item.reasons,
+    }));
   } catch (error) {
     throw error;
   }

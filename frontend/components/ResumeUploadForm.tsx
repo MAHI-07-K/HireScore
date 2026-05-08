@@ -1,6 +1,7 @@
 "use client";
 
 import { DragEvent, FormEvent, useMemo, useState } from "react";
+import { studentAPI } from "@/services/api";
 
 type VerificationField = {
   status: string;
@@ -9,41 +10,60 @@ type VerificationField = {
 
 type StudentResult = {
   studentId: string;
+  fullName: string;
+  rollNumber: string;
+  email: string;
+  college: string;
+  branch: string;
+  cgpa: number;
+  resumeUrl: string | null;
   resumeId: string;
-  parsedData: {
-    skills: string[];
-    projects: string[];
-    certifications: string[];
+  verificationStatus: string;
+  confidenceData: {
+    score: number;
+    riskLevel: string;
+    strengths: string[];
+    concerns: string[];
+    label?: string;
   };
-  verificationCompleted: boolean;
   verificationResults: {
-    projects: VerificationField;
-    certifications: VerificationField;
+    education?: VerificationField;
+    internships?: VerificationField;
+    projects?: VerificationField;
+    certifications?: VerificationField;
   };
-  confidenceScore: number;
-  riskLevel: string;
-  missingVerificationAlerts: string[];
-  eligibility: {
+  isEligibleForDrives: boolean;
+  hireScore: number;
+  appliedDrives: string[];
+  verificationCompleted?: boolean;
+  confidenceScore?: number;
+  riskLevel?: string;
+  eligibility?: {
     isEligible: boolean;
     reason: string;
   };
-  appliedDrives: string[];
+  missingVerificationAlerts?: string[];
   createdAt: string;
+  updatedAt: string;
 };
 
 type Drive = {
-  id: string;
+  _id: string;
   company: string;
   role: string;
   location: string;
   minConfidenceScore: number;
-  isEligible: boolean;
-  alreadyApplied: boolean;
+  requiredSkills?: string[];
+  deadline?: string;
+  alreadyApplied?: boolean;
 };
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+interface ResumeUploadFormProps {
+  studentId: string;
+  onVerificationComplete: () => void;
+}
 
-export function ResumeUploadForm() {
+export function ResumeUploadForm({ studentId, onVerificationComplete }: ResumeUploadFormProps) {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [githubUsername, setGithubUsername] = useState("");
   const [certificateLinks, setCertificateLinks] = useState("");
@@ -91,6 +111,11 @@ export function ResumeUploadForm() {
       return;
     }
 
+    if (!studentId) {
+      setError("Student identity is required. Please login again.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("resume", resumeFile);
     formData.append("githubUsername", githubUsername.trim());
@@ -99,23 +124,13 @@ export function ResumeUploadForm() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`${apiBaseUrl}/api/students/submit`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.message || "Student submission failed");
-      }
-
-      setStudent(payload.data);
-    } catch (submitError) {
+      const response = await studentAPI.uploadResume(studentId, formData);
+      setStudent(response.data.data);
+      setError("");
+    } catch (submitError: any) {
       setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Student submission failed"
+        submitError.response?.data?.message ||
+          (submitError instanceof Error ? submitError.message : "Student submission failed")
       );
     } finally {
       setIsSubmitting(false);
@@ -123,42 +138,27 @@ export function ResumeUploadForm() {
   };
 
   const handleVerify = async () => {
-    if (!student) return;
+    if (!studentId) {
+      setError("Student identity is required. Please login again.");
+      return;
+    }
 
     try {
       setError("");
       setIsVerifying(true);
 
-      const response = await fetch(
-        `${apiBaseUrl}/api/students/${student.studentId}/verify`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await studentAPI.verifyResume(studentId);
+      setStudent(response.data.data);
+      setError("");
 
-      const payload = await response.json();
+      const drivesResponse = await studentAPI.getAllDrives(studentId);
+      setDrives(drivesResponse.data.data.eligibleDrives || []);
 
-      if (!response.ok) {
-        throw new Error(payload.message || "Verification failed");
-      }
-
-      setStudent(payload.data);
-
-      const drivesResponse = await fetch(
-        `${apiBaseUrl}/api/students/${student.studentId}/drives`
-      );
-      const drivesPayload = await drivesResponse.json();
-
-      if (!drivesResponse.ok) {
-        throw new Error(drivesPayload.message || "Could not load drives");
-      }
-
-      setDrives(drivesPayload.data);
-    } catch (verificationError) {
+      onVerificationComplete();
+    } catch (verificationError: any) {
       setError(
-        verificationError instanceof Error
-          ? verificationError.message
-          : "Verification failed"
+        verificationError.response?.data?.message ||
+          (verificationError instanceof Error ? verificationError.message : "Verification failed")
       );
     } finally {
       setIsVerifying(false);
@@ -172,29 +172,17 @@ export function ResumeUploadForm() {
       setError("");
       setApplyingDriveId(driveId);
 
-      const response = await fetch(
-        `${apiBaseUrl}/api/students/${student.studentId}/drives/${driveId}/apply`,
-        {
-          method: "POST",
-        }
-      );
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.message || "Could not apply for drive");
-      }
+      await studentAPI.applyForDrive(student.studentId, driveId);
 
       setDrives((currentDrives) =>
         currentDrives.map((drive) =>
-          drive.id === driveId ? { ...drive, alreadyApplied: true } : drive
+          drive._id === driveId ? { ...drive, alreadyApplied: true } : drive
         )
       );
-    } catch (applyError) {
+    } catch (applyError: any) {
       setError(
-        applyError instanceof Error
-          ? applyError.message
-          : "Could not apply for drive"
+        applyError.response?.data?.message ||
+          (applyError instanceof Error ? applyError.message : "Could not apply for drive")
       );
     } finally {
       setApplyingDriveId("");
@@ -303,16 +291,20 @@ export function ResumeUploadForm() {
                 Student profile created
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                Resume stored. Verification is currently{" "}
-                {student.verificationCompleted ? "completed" : "pending"}.
+                Resume stored. Verification is currently {student.verificationStatus}.
               </p>
             </div>
 
-            <ResultGroup title="Projects" items={student.parsedData.projects} />
-            <ResultGroup
-              title="Certifications"
-              items={student.parsedData.certifications}
-            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">Score</p>
+                <p className="mt-1 text-sm text-slate-600">{student.confidenceData?.score ?? 0}/100</p>
+              </div>
+              <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-sm font-semibold text-slate-800">Risk Level</p>
+                <p className="mt-1 text-sm text-slate-600">{student.confidenceData?.riskLevel || "Unknown"}</p>
+              </div>
+            </div>
 
             <button
               type="button"
@@ -330,23 +322,23 @@ export function ResumeUploadForm() {
                 />
                 <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
                   <p className="text-sm font-semibold text-slate-800">
-                    Confidence: {student.confidenceScore}/100
+                    Confidence: {student.confidenceScore ?? 0}/100
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Risk level: {student.riskLevel}
+                    Risk level: {student.riskLevel || "Unknown"}
                   </p>
                   <p className="mt-3 text-sm font-semibold text-slate-800">
                     Eligibility:{" "}
-                    {student.eligibility.isEligible
+                    {student.eligibility?.isEligible
                       ? "Eligible for drives"
                       : "Not eligible yet"}
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    {student.eligibility.reason}
+                    {student.eligibility?.reason || "Resume verification has not met the drive threshold yet."}
                   </p>
                 </div>
 
-                {student.missingVerificationAlerts.length ? (
+                {student.missingVerificationAlerts?.length ? (
                   <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
                     <p className="text-sm font-semibold text-amber-900">
                       Missing verification alerts
@@ -396,17 +388,19 @@ function VerificationStatusList({
             <p className="text-sm font-semibold text-slate-800">{label}</p>
             <span
               className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                value.status === "verified"
+                value?.status === "verified"
                   ? "bg-emerald-100 text-emerald-800"
-                  : value.status === "partial"
+                  : value?.status === "partial"
                     ? "bg-amber-100 text-amber-800"
                     : "bg-rose-100 text-rose-800"
               }`}
             >
-              {value.status}
+              {value?.status || "missing"}
             </span>
           </div>
-          <p className="mt-2 text-sm text-slate-600">{value.explanation}</p>
+          <p className="mt-2 text-sm text-slate-600">
+            {value?.explanation || "No verification result available yet."}
+          </p>
         </div>
       ))}
     </div>
@@ -437,7 +431,7 @@ function DriveList({
       <h3 className="text-sm font-semibold text-slate-700">Available drives</h3>
       {drives.map((drive) => (
         <div
-          key={drive.id}
+          key={drive._id}
           className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
         >
           <div className="flex items-start justify-between gap-4">
@@ -452,21 +446,19 @@ function DriveList({
             </div>
             <button
               type="button"
-              onClick={() => onApply(drive.id)}
-              disabled={!drive.isEligible || drive.alreadyApplied || applyingDriveId === drive.id}
+              onClick={() => onApply(drive._id)}
+              disabled={drive.alreadyApplied || applyingDriveId === drive._id}
               className="h-9 rounded-md bg-signal px-3 text-xs font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
               {drive.alreadyApplied
                 ? "Applied"
-                : applyingDriveId === drive.id
+                : applyingDriveId === drive._id
                   ? "Applying..."
                   : "Apply"}
             </button>
           </div>
           <p className="mt-3 text-xs text-slate-500">
-            {drive.isEligible
-              ? "Eligible to apply."
-              : "Complete verification and meet the confidence threshold to apply."}
+            Eligible to apply once resume verification completes successfully.
           </p>
         </div>
       ))}
