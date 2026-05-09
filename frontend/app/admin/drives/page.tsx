@@ -9,9 +9,9 @@ import DeleteDriveModal from "@/components/drives/DeleteDriveModal";
 
 interface Drive {
   _id: string;
-  title: string;
-  company: string;
-  location?: string;
+  companyName: string;
+  recruiterId: string;
+  recruiterPassword: string;
   deadline?: string;
   postedDate?: string;
 }
@@ -43,7 +43,7 @@ export default function DrivesPage() {
       setTotalPages(response.data.pagination.pages);
       setError("");
     } catch (err: any) {
-      setError(err.message || "Failed to fetch drives");
+      setError(err.response?.data?.message || err.message || "Failed to fetch drives");
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,6 @@ export default function DrivesPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Manage Recruitment Drives</h1>
           <button
@@ -98,19 +97,17 @@ export default function DrivesPage() {
           </button>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             {error}
           </div>
         )}
 
-        {/* Search Bar */}
         <div className="flex items-center px-4 py-2 bg-white border rounded-lg shadow-sm">
           <Search className="h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search drives by title, company, or location..."
+            placeholder="Search by company or recruiter ID..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -131,7 +128,6 @@ export default function DrivesPage() {
           )}
         </div>
 
-        {/* Drives Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">
@@ -148,19 +144,19 @@ export default function DrivesPage() {
                   <thead>
                     <tr className="border-b bg-gray-50">
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Title
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
                         Company
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Location
+                        Recruiter ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Posted
+                        Password
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
                         Deadline
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
+                        Posted
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
                         Actions
@@ -171,19 +167,19 @@ export default function DrivesPage() {
                     {drives.map((drive) => (
                       <tr key={drive._id} className="border-b hover:bg-gray-50 transition">
                         <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                          {drive.title}
+                          {drive.companyName}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
-                          {drive.company}
+                          {drive.recruiterId}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
-                          {drive.location || "-"}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {formatDate(drive.postedDate)}
+                          {drive.recruiterPassword}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
                           {formatDate(drive.deadline)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {formatDate(drive.postedDate)}
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <div className="flex items-center space-x-3">
@@ -209,7 +205,6 @@ export default function DrivesPage() {
                 </table>
               </div>
 
-              {/* Pagination */}
               <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50">
                 <p className="text-sm text-gray-600">
                   Page {page} of {totalPages}
@@ -236,7 +231,6 @@ export default function DrivesPage() {
         </div>
       </div>
 
-      {/* Add/Edit Drive Modal */}
       {showForm && (
         <DriveForm
           drive={editingDrive}
@@ -245,7 +239,6 @@ export default function DrivesPage() {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
       {deletingDrive && (
         <DeleteDriveModal
           drive={deletingDrive}

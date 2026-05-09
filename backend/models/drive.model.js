@@ -2,14 +2,11 @@ import mongoose from "mongoose";
 
 const driveSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    company: { type: String, required: true },
-    description: { type: String },
-    location: { type: String },
-    applicationUrl: { type: String },
-    eligibilityCriteria: { type: String },
-    postedDate: { type: Date, default: Date.now },
+    companyName: { type: String, required: true },
+    recruiterId: { type: String, required: true },
+    recruiterPassword: { type: String, required: true },
     deadline: { type: Date },
+    postedDate: { type: Date, default: Date.now },
   },
   {
     timestamps: true,
