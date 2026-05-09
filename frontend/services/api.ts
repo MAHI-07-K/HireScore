@@ -106,4 +106,20 @@ export const verificationAPI = {
   history: (studentId: any) => apiClient.get(`/verification/history/${normalizeId(studentId)}`),
 };
 
+// Admin APIs
+export const adminAPI = {
+  getAnalytics: () => apiClient.get('/admin/analytics'),
+  getStudents: (params?: any) => apiClient.get('/admin/students', { params }),
+  getStudentDetail: (studentId: string) => apiClient.get(`/admin/students/${studentId}`),
+};
+
+// Drive APIs
+export const driveAPI = {
+  getDrives: (params?: any) => apiClient.get('/drives', { params }),
+  getDriveById: (driveId: string) => apiClient.get(`/drives/${driveId}`),
+  createDrive: (data: any) => apiClient.post('/drives', data),
+  updateDrive: (driveId: string, data: any) => apiClient.put(`/drives/${driveId}`, data),
+  deleteDrive: (driveId: string) => apiClient.delete(`/drives/${driveId}`),
+};
+
 export default apiClient;

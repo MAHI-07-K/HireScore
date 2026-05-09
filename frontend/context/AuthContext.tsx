@@ -33,6 +33,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   register: (data: any) => Promise<void>;
   login: (rollNumber: string, password: string) => Promise<void>;
   logout: () => void;
@@ -67,6 +68,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(false);
   }, []);
+
+  const isAdmin = student?.rollNumber?.startsWith("ADMIN") || false;
 
   const register = async (data: any) => {
     setIsLoading(true);
@@ -126,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         isLoading,
         isAuthenticated: !!token,
+        isAdmin,
         register,
         login,
         logout,

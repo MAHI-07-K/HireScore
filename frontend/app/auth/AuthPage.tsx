@@ -59,7 +59,9 @@ export default function AuthPage() {
 
     try {
       await login(loginForm.rollNumber, loginForm.password);
-      router.push("/dashboard");
+      // Redirect based on user type
+      const isAdminUser = loginForm.rollNumber.startsWith("ADMIN");
+      router.push(isAdminUser ? "/admin" : "/dashboard");
     } catch (err: any) {
       setError(err.message);
     } finally {
