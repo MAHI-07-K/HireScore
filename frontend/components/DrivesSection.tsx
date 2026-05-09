@@ -1,159 +1,113 @@
 "use client";
 
-import React, { useState } from "react";
-import { studentAPI } from "@/services/api";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-interface Drive {
+interface LiveDrive {
   _id: string;
-  company: string;
+  companyName: string;
   role: string;
   description: string;
-  location: string;
-  minCGPA: number;
-  minConfidenceScore: number;
-  requiredSkills: string[];
-  deadline: string;
-  lockReasons?: string[];
+  eligibilityCriteria: string;
+  totalRounds: number;
 }
-
-interface DriveEntry {
-  drive: Drive;
-  lockReasons: string[];
-}
-
-type DrivesSectionDrive = Drive | DriveEntry;
 
 interface DrivesSectionProps {
-  drives: DrivesSectionDrive[];
   studentId: string;
-  isLocked: boolean;
   onApplySuccess: () => void;
 }
 
 export default function DrivesSection({
-  drives,
   studentId,
-  isLocked,
   onApplySuccess,
 }: DrivesSectionProps) {
+  const [liveDrives, setLiveDrives] = useState<LiveDrive[]>([]);
   const [applyingDriveId, setApplyingDriveId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLiveDrives();
+  }, []);
+
+  const fetchLiveDrives = async () => {
+    try {
+      const response = await axios.get('/api/drive/live');
+      setLiveDrives(response.data.drives);
+    } catch (err: any) {
+      setError('Failed to fetch live drives');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleApplyForDrive = async (driveId: string) => {
     try {
       setApplyingDriveId(driveId);
       setError("");
 
-      await studentAPI.applyForDrive(studentId, driveId);
+      const token = localStorage.getItem('token'); // Assuming student token
+      await axios.post('/api/drive/apply', { driveId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       onApplySuccess();
+      alert('Applied successfully!');
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to apply for drive");
+      setError(err.response?.data?.error || "Failed to apply for drive");
+    } finally {
       setApplyingDriveId(null);
     }
   };
 
-  if (drives.length === 0) {
-    return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600 text-center py-8">
-          {isLocked ? "No locked drives at this time." : "No available drives at this time."}
-        </p>
-      </div>
-    );
+  if (loading) {
+    return <div className="text-center py-4">Loading live drives...</div>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">Live Recruitment Drives</h2>
+
       {error && (
-        <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+        <div className="mb-4 text-red-600 text-sm">
           {error}
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-        {drives.map((entry) => {
-          const drive = "drive" in entry ? entry.drive : entry;
-          return (
-            <div key={drive._id} className="bg-white rounded-lg shadow p-6 border-l-4 border-indigo-600">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900">{drive.company}</h3>
-                <p className="text-lg text-indigo-600 font-semibold">{drive.role}</p>
-              </div>
-              {isLocked ? (
-                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-                  Locked
-                </span>
-              ) : (
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                  Available
-                </span>
-              )}
-            </div>
-
-            <p className="text-gray-700 mb-4">{drive.description || "No description provided"}</p>
-
-            {/* Requirements */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-xs text-gray-600 font-semibold mb-1">Minimum CGPA</p>
-                <p className="text-lg font-bold text-gray-900">{drive.minCGPA}</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-xs text-gray-600 font-semibold mb-1">Min Confidence Score</p>
-                <p className="text-lg font-bold text-gray-900">{drive.minConfidenceScore}%</p>
-              </div>
-            </div>
-
-            {/* Deadline */}
-            <div className="mb-4 text-sm text-gray-600">
-              <span className="font-semibold">Deadline:</span>{" "}
-              {new Date(drive.deadline).toLocaleDateString()}
-            </div>
-
-            {/* Required Skills */}
-            {drive.requiredSkills && drive.requiredSkills.length > 0 && (
-              <div className="mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">Required Skills</p>
-                <div className="flex flex-wrap gap-2">
-                  {drive.requiredSkills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+      {liveDrives.length === 0 ? (
+        <p className="text-gray-600">No live recruitment drives available.</p>
+      ) : (
+        <div className="space-y-4">
+          {liveDrives.map((drive) => (
+            <div key={drive._id} className="border border-gray-200 rounded-lg p-4">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {drive.companyName} - {drive.role}
+                  </h3>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                    LIVE
+                  </span>
                 </div>
+                <button
+                  onClick={() => handleApplyForDrive(drive._id)}
+                  disabled={applyingDriveId === drive._id}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {applyingDriveId === drive._id ? 'Applying...' : 'Apply'}
+                </button>
               </div>
-            )}
 
-            {/* Lock Reasons */}
-            {isLocked && drive.lockReasons && drive.lockReasons.length > 0 && (
-              <div className="mb-4 bg-red-50 p-3 rounded-lg border border-red-200">
-                <p className="text-sm font-semibold text-red-700 mb-2">Reasons for Lock:</p>
-                <ul className="text-sm text-red-600 list-disc list-inside space-y-1">
-                  {drive.lockReasons.map((reason, idx) => (
-                    <li key={idx}>{reason}</li>
-                  ))}
-                </ul>
+              <p className="text-gray-700 mb-2">{drive.description}</p>
+
+              <div className="text-sm text-gray-600">
+                <p><strong>Eligibility:</strong> {drive.eligibilityCriteria}</p>
+                <p><strong>Rounds:</strong> {drive.totalRounds}</p>
               </div>
-            )}
-
-            {/* Apply Button */}
-            {!isLocked && (
-              <button
-                onClick={() => handleApplyForDrive(drive._id)}
-                disabled={applyingDriveId === drive._id}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
-              >
-                {applyingDriveId === drive._id ? "Applying..." : "Apply Now"}
-              </button>
-            )}
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

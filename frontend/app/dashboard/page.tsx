@@ -265,16 +265,7 @@ export default function Dashboard() {
 
         <div className="space-y-8">
           <DrivesSection
-            drives={dashboardData?.availableDrives || []}
             studentId={student?.studentId || ""}
-            isLocked={false}
-            onApplySuccess={fetchDashboard}
-          />
-
-          <DrivesSection
-            drives={dashboardData?.lockedDrives || []}
-            studentId={student?.studentId || ""}
-            isLocked={true}
             onApplySuccess={fetchDashboard}
           />
         </div>

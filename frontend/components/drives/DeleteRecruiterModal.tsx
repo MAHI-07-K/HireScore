@@ -2,21 +2,21 @@
 
 import React, { useState } from "react";
 import { X, Trash2 } from "lucide-react";
-import { driveAPI } from "@/services/api";
+import { adminAPI } from "@/services/api";
 
-interface Drive {
+interface Recruiter {
   _id: string;
   companyName: string;
   recruiterId: string;
 }
 
-interface DeleteDriveModalProps {
-  drive: Drive;
+interface DeleteRecruiterModalProps {
+  recruiter: Recruiter;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function DeleteDriveModal({ drive, onClose, onSuccess }: DeleteDriveModalProps) {
+export default function DeleteRecruiterModal({ recruiter, onClose, onSuccess }: DeleteRecruiterModalProps) {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,10 +24,12 @@ export default function DeleteDriveModal({ drive, onClose, onSuccess }: DeleteDr
     setDeleting(true);
     setError("");
     try {
-      await driveAPI.deleteDrive(drive._id);
-      onSuccess();
+      // For now, we'll just show not implemented since we don't have a delete API
+      setError("Deleting recruiters is not yet implemented.");
+      // await adminAPI.deleteRecruiter(recruiter._id);
+      // onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Failed to delete drive.");
+      setError(err.response?.data?.message || err.message || "Failed to delete recruiter.");
     } finally {
       setDeleting(false);
     }
@@ -42,9 +44,9 @@ export default function DeleteDriveModal({ drive, onClose, onSuccess }: DeleteDr
               <Trash2 className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Delete Drive</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Delete Recruiter</h2>
               <p className="text-sm text-gray-500">
-                This action cannot be undone. The drive will be permanently removed.
+                This action cannot be undone. The recruiter account will be permanently removed.
               </p>
             </div>
           </div>
@@ -59,7 +61,7 @@ export default function DeleteDriveModal({ drive, onClose, onSuccess }: DeleteDr
 
         <div className="space-y-4 px-6 py-6">
           <p className="text-sm text-gray-700">
-            Are you sure you want to delete the recruitment drive for <span className="font-semibold">{drive.companyName}</span> assigned to <span className="font-semibold">{drive.recruiterId}</span>?
+            Are you sure you want to delete the recruiter account for <span className="font-semibold">{recruiter.companyName}</span> with ID <span className="font-semibold">{recruiter.recruiterId}</span>?
           </p>
 
           {error && (
@@ -82,7 +84,7 @@ export default function DeleteDriveModal({ drive, onClose, onSuccess }: DeleteDr
               disabled={deleting}
               className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {deleting ? "Deleting..." : "Delete Drive"}
+              {deleting ? "Deleting..." : "Delete Recruiter"}
             </button>
           </div>
         </div>

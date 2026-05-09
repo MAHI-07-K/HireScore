@@ -2,76 +2,71 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
-import { driveAPI } from "@/services/api";
+import { adminAPI } from "@/services/api";
 import { Edit2, Trash2, Plus, Search, X } from "lucide-react";
-import DriveForm from "@/components/drives/DriveForm";
-import DeleteDriveModal from "@/components/drives/DeleteDriveModal";
+import RecruiterForm from "@/components/drives/RecruiterForm";
+import DeleteRecruiterModal from "@/components/drives/DeleteRecruiterModal";
 
-interface Drive {
+interface Recruiter {
   _id: string;
   companyName: string;
   recruiterId: string;
-  recruiterPassword: string;
-  deadline?: string;
-  postedDate?: string;
+  accountExpiryDate: string;
+  hasDriveCreated: boolean;
 }
 
-export default function DrivesPage() {
-  const [drives, setDrives] = useState<Drive[]>([]);
+export default function RecruitersPage() {
+  const [recruiters, setRecruiters] = useState<Recruiter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingDrive, setEditingDrive] = useState<Drive | null>(null);
-  const [deletingDrive, setDeletingDrive] = useState<Drive | null>(null);
+  const [editingRecruiter, setEditingRecruiter] = useState<Recruiter | null>(null);
+  const [deletingRecruiter, setDeletingRecruiter] = useState<Recruiter | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchDrives();
+    fetchRecruiters();
   }, [page, search]);
 
-  const fetchDrives = async () => {
+  const fetchRecruiters = async () => {
     try {
       setLoading(true);
-      const response = await driveAPI.getDrives({
-        search,
-        page,
-        limit: 10,
-      });
-      setDrives(response.data.data);
+      const response = await adminAPI.getRecruiters({ search, page, limit: 10 });
+      setRecruiters(response.data.data);
       setTotalPages(response.data.pagination.pages);
       setError("");
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Failed to fetch drives");
+      setError(err.response?.data?.message || err.message || "Failed to fetch recruiters");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddDrive = () => {
-    setEditingDrive(null);
+  const handleAddRecruiter = () => {
+    setEditingRecruiter(null);
     setShowForm(true);
   };
 
-  const handleEditDrive = (drive: Drive) => {
-    setEditingDrive(drive);
+  const handleEditRecruiter = (recruiter: Recruiter) => {
+    setEditingRecruiter(recruiter);
     setShowForm(true);
   };
 
   const handleCloseForm = () => {
     setShowForm(false);
-    setEditingDrive(null);
+    setEditingRecruiter(null);
   };
 
   const handleFormSubmit = async () => {
     handleCloseForm();
-    await fetchDrives();
+    await fetchRecruiters();
   };
 
   const handleDeleteSuccess = async () => {
-    setDeletingDrive(null);
-    await fetchDrives();
+    setDeletingRecruiter(null);
+    await fetchRecruiters();
   };
 
   const formatDate = (date?: string) => {
@@ -87,13 +82,13 @@ export default function DrivesPage() {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Recruitment Drives</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Manage Recruiters</h1>
           <button
-            onClick={handleAddDrive}
+            onClick={handleAddRecruiter}
             className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <Plus className="h-5 w-5 mr-2" />
-            Add Drive
+            Add Recruiter
           </button>
         </div>
 
@@ -131,11 +126,11 @@ export default function DrivesPage() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">
-              <p className="text-gray-500">Loading drives...</p>
+              <p className="text-gray-500">Loading recruiters...</p>
             </div>
-          ) : drives.length === 0 ? (
+          ) : recruiters.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-gray-500">No drives found. Create one to get started!</p>
+              <p className="text-gray-500">No recruiters found. Create one to get started!</p>
             </div>
           ) : (
             <>
@@ -150,13 +145,10 @@ export default function DrivesPage() {
                         Recruiter ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Password
+                        Account Expiry
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Deadline
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
-                        Posted
+                        Drive Created
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">
                         Actions
@@ -164,36 +156,39 @@ export default function DrivesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {drives.map((drive) => (
-                      <tr key={drive._id} className="border-b hover:bg-gray-50 transition">
+                    {recruiters.map((recruiter) => (
+                      <tr key={recruiter._id} className="border-b hover:bg-gray-50 transition">
                         <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                          {drive.companyName}
+                          {recruiter.companyName}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
-                          {drive.recruiterId}
+                          {recruiter.recruiterId}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
-                          {drive.recruiterPassword}
+                          {formatDate(recruiter.accountExpiryDate)}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {formatDate(drive.deadline)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {formatDate(drive.postedDate)}
+                        <td className="px-6 py-4 text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            recruiter.hasDriveCreated
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {recruiter.hasDriveCreated ? 'Yes' : 'No'}
+                          </span>
                         </td>
                         <td className="px-6 py-4 text-sm">
                           <div className="flex items-center space-x-3">
                             <button
-                              onClick={() => handleEditDrive(drive)}
+                              onClick={() => handleEditRecruiter(recruiter)}
                               className="text-indigo-600 hover:text-indigo-800 transition-colors"
-                              title="Edit drive"
+                              title="Edit recruiter"
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => setDeletingDrive(drive)}
+                              onClick={() => setDeletingRecruiter(recruiter)}
                               className="text-red-600 hover:text-red-800 transition-colors"
-                              title="Delete drive"
+                              title="Delete recruiter"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -232,17 +227,17 @@ export default function DrivesPage() {
       </div>
 
       {showForm && (
-        <DriveForm
-          drive={editingDrive}
+        <RecruiterForm
+          recruiter={editingRecruiter}
           onClose={handleCloseForm}
           onSubmit={handleFormSubmit}
         />
       )}
 
-      {deletingDrive && (
-        <DeleteDriveModal
-          drive={deletingDrive}
-          onClose={() => setDeletingDrive(null)}
+      {deletingRecruiter && (
+        <DeleteRecruiterModal
+          recruiter={deletingRecruiter}
+          onClose={() => setDeletingRecruiter(null)}
           onSuccess={handleDeleteSuccess}
         />
       )}

@@ -23,7 +23,7 @@ interface AdminLayoutProps {
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: BarChart3 },
   { name: "Students", href: "/admin/students", icon: Users },
-  { name: "Manage Drives", href: "/admin/drives", icon: Briefcase },
+  { name: "Manage Recruiters", href: "/admin/drives", icon: Briefcase },
   { name: "Reports", href: "/admin/reports", icon: FileText },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];

@@ -1,5 +1,7 @@
 import { Student } from "../models/student.model.js";
 import { Verification } from "../models/verification.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
+import bcrypt from "bcryptjs";
 import { AppError } from "../utils/AppError.js";
 
 const getAverage = (numbers) =>
@@ -210,5 +212,85 @@ export const getAdminStudentDetail = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+// ─── GET /api/admin/recruiters ───────────────────────────────────────────
+export const getAdminRecruiters = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    const query = {};
+    if (search) {
+      query.$or = [
+        { companyName: { $regex: search, $options: "i" } },
+        { recruiterId: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const recruiters = await Recruiter.find(query)
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+      .lean();
+
+    const total = await Recruiter.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: recruiters,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── POST /api/admin/create-recruiter ─────────────────────────────────────
+export const createRecruiter = async (req, res, next) => {
+  try {
+    const { companyName, recruiterId, password, accountExpiryDate } = req.body;
+
+    if (!companyName || !recruiterId || !password || !accountExpiryDate) {
+      return next(new AppError("All fields are required", 400));
+    }
+
+    // Check if recruiter already exists
+    const existingRecruiter = await Recruiter.findOne({ recruiterId });
+    if (existingRecruiter) {
+      return next(new AppError("Recruiter ID already exists", 400));
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const recruiter = new Recruiter({
+      companyName,
+      recruiterId,
+      password: hashedPassword,
+      accountExpiryDate: new Date(accountExpiryDate)
+    });
+
+    await recruiter.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Recruiter created successfully",
+      data: {
+        companyName: recruiter.companyName,
+        recruiterId: recruiter.recruiterId,
+        accountExpiryDate: recruiter.accountExpiryDate
+      }
+    });
+
+  } catch (error) {
+    next(error);
   }
 };

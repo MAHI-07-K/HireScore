@@ -2,45 +2,50 @@
 
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { driveAPI } from "@/services/api";
+import { adminAPI } from "@/services/api";
 
-interface Drive {
+interface Recruiter {
   _id: string;
   companyName: string;
   recruiterId: string;
-  recruiterPassword: string;
-  deadline?: string;
+  accountExpiryDate: string;
 }
 
-interface DriveFormProps {
-  drive: Drive | null;
+interface RecruiterFormProps {
+  recruiter: Recruiter | null;
   onClose: () => void;
   onSubmit: () => void;
 }
 
-export default function DriveForm({ drive, onClose, onSubmit }: DriveFormProps) {
+export default function RecruiterForm({ recruiter, onClose, onSubmit }: RecruiterFormProps) {
   const [companyName, setCompanyName] = useState("");
   const [recruiterId, setRecruiterId] = useState("");
-  const [recruiterPassword, setRecruiterPassword] = useState("");
-  const [deadline, setDeadline] = useState("");
+  const [password, setPassword] = useState("");
+  const [accountExpiryDate, setAccountExpiryDate] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (drive) {
-      setCompanyName(drive.companyName || "");
-      setRecruiterId(drive.recruiterId || "");
-      setRecruiterPassword(drive.recruiterPassword || "");
-      setDeadline(drive.deadline ? drive.deadline.split("T")[0] : "");
+    if (recruiter) {
+      setCompanyName(recruiter.companyName || "");
+      setRecruiterId(recruiter.recruiterId || "");
+      setAccountExpiryDate(recruiter.accountExpiryDate ? recruiter.accountExpiryDate.split("T")[0] : "");
+      setPassword(""); // Don't show existing password for security
+    } else {
+      // Reset form for new recruiter
+      setCompanyName("");
+      setRecruiterId("");
+      setPassword("");
+      setAccountExpiryDate("");
     }
-  }, [drive]);
+  }, [recruiter]);
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
 
-    if (!companyName.trim() || !recruiterId.trim() || !recruiterPassword.trim()) {
-      setError("Company name, recruiter ID, and password are required.");
+    if (!companyName.trim() || !recruiterId.trim() || !password.trim() || !accountExpiryDate) {
+      setError("All fields are required.");
       return;
     }
 
@@ -49,19 +54,21 @@ export default function DriveForm({ drive, onClose, onSubmit }: DriveFormProps) 
       const payload = {
         companyName: companyName.trim(),
         recruiterId: recruiterId.trim(),
-        recruiterPassword: recruiterPassword.trim(),
-        deadline: deadline || undefined,
+        password: password.trim(),
+        accountExpiryDate,
       };
 
-      if (drive?._id) {
-        await driveAPI.updateDrive(drive._id, payload);
+      if (recruiter?._id) {
+        // For editing, we'd need an update API - for now just show not implemented
+        setError("Editing recruiters is not yet implemented.");
+        return;
       } else {
-        await driveAPI.createDrive(payload);
+        await adminAPI.createRecruiter(payload);
       }
 
       onSubmit();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Unable to save drive.");
+      setError(err.response?.data?.message || err.message || "Unable to save recruiter.");
     } finally {
       setSaving(false);
     }
@@ -73,10 +80,10 @@ export default function DriveForm({ drive, onClose, onSubmit }: DriveFormProps) 
         <div className="flex items-center justify-between border-b px-6 py-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {drive ? "Edit Drive" : "Add New Drive"}
+              {recruiter ? "Edit Recruiter" : "Add New Recruiter"}
             </h2>
             <p className="text-sm text-gray-500">
-              Manage recruitment drive credentials and deadline.
+              Create recruiter account for recruitment management.
             </p>
           </div>
           <button
@@ -116,20 +123,20 @@ export default function DriveForm({ drive, onClose, onSubmit }: DriveFormProps) 
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-medium text-gray-700">
-              Recruiter Password
+              Password
               <input
                 type="password"
-                value={recruiterPassword}
-                onChange={(e) => setRecruiterPassword(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-gray-700">
-              Deadline
+              Account Expiry Date
               <input
                 type="date"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
+                value={accountExpiryDate}
+                onChange={(e) => setAccountExpiryDate(e.target.value)}
                 className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
             </label>
@@ -148,7 +155,7 @@ export default function DriveForm({ drive, onClose, onSubmit }: DriveFormProps) 
               disabled={saving}
               className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {saving ? "Saving..." : drive ? "Update Drive" : "Create Drive"}
+              {saving ? "Saving..." : recruiter ? "Update Recruiter" : "Create Recruiter"}
             </button>
           </div>
         </form>
