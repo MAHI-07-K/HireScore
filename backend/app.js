@@ -1,8 +1,8 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import resumeRoutes from "./routes/resume.routes.js";
-import studentRoutes from "./routes/student.routes.js";
+import "./models/drive.model.js";
+import "./models/resume.model.js";
 import authRoutes from "./routes/auth.routes.js";
 import verificationRoutes from "./phase2-verification/routes/verification.routes.js";
 import newVerificationRoutes from "./routes/verification.routes.js";
@@ -27,8 +27,7 @@ app.get("/health", (_req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/resume", resumeRoutes);
-app.use("/api/students", studentRoutes);
+app.use("/api/phase2-verification", verificationRoutes);
 app.use("/api/verification", newVerificationRoutes);
 
 // Error handling middleware

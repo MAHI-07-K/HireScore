@@ -6,6 +6,7 @@ import {
   updateVerificationController,
   submitVerificationController,
   getHistoryController,
+  getResumeController,
 } from "../controllers/verification.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { uploadResume } from "../middleware/upload.middleware.js";
@@ -14,6 +15,9 @@ const router = Router();
 
 // All routes are protected
 router.use(protectRoute);
+
+// GET resume data for the authenticated student
+router.get("/resume", getResumeController);
 
 // GET verification data for a student
 router.get("/:studentId", getVerificationController);

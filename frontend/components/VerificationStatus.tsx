@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { studentAPI } from "@/services/api";
+
+interface Project {
+  name: string;
+  description: string;
+  technologies: string[];
+  githubUrl: string;
+}
 
 interface VerificationStatusProps {
   studentId: string;
   resumeUploaded: boolean;
   verificationStatus: string;
   confidenceScore: number;
+  latestScore: number;
+  feedback: string[];
   riskLevel: string;
   onRefresh: () => void;
 }
@@ -17,6 +26,8 @@ export default function VerificationStatus({
   resumeUploaded,
   verificationStatus,
   confidenceScore,
+  latestScore,
+  feedback,
   riskLevel,
   onRefresh,
 }: VerificationStatusProps) {
@@ -27,6 +38,26 @@ export default function VerificationStatus({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        if (!studentId) return;
+        const response = await studentAPI.getResume();
+        if (response?.data?.parsedData?.projects) {
+          setProjects(response.data.parsedData.projects);
+        }
+      } catch (err) {
+        // Silently fail - projects are optional
+        console.debug("Failed to fetch projects:", err);
+      }
+    };
+
+    fetchProjects();
+  }, [studentId, resumeUploaded]);
+
+  const normalizedStatus = verificationStatus?.toString().toLowerCase() || "not started";
 
   const fileLabel = useMemo(() => {
     if (!resumeFile) return "Drop PDF resume here or choose a file";
@@ -34,13 +65,19 @@ export default function VerificationStatus({
   }, [resumeFile]);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    const normalized = status?.toString().toLowerCase();
+    switch (normalized) {
+      case "verified":
       case "completed":
         return "bg-green-100 text-green-800";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800";
-      case "failed":
+      case "partially verified":
+      case "in progress":
+        return "bg-yellow-100 text-yellow-800";
+      case "rejected":
         return "bg-red-100 text-red-800";
+      case "pending":
+      case "not started":
+        return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -58,6 +95,18 @@ export default function VerificationStatus({
         return "text-gray-600";
     }
   };
+
+  const getStatusLabel = (status: string) => {
+    if (!status) return "Not Started";
+    return status
+      .toString()
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const isVerified = ["verified", "completed"].includes(normalizedStatus);
+
+  const lastScore = latestScore || confidenceScore;
 
   const handleFile = (file?: File) => {
     setError("");
@@ -94,13 +143,13 @@ export default function VerificationStatus({
     }
 
     const formData = new FormData();
-    formData.append("resume", resumeFile);
+    formData.append("file", resumeFile);
     formData.append("githubUsername", githubUsername.trim());
     formData.append("certificateLinks", certificateLinks.trim());
 
     try {
       setIsSubmitting(true);
-      await studentAPI.uploadResume(studentId, formData);
+      await studentAPI.uploadResume(formData);
       setError("");
       setResumeFile(null);
       setGithubUsername("");
@@ -125,7 +174,7 @@ export default function VerificationStatus({
     try {
       setError("");
       setIsVerifying(true);
-      await studentAPI.verifyResume(studentId);
+      await studentAPI.verifyResume();
       setError("");
       onRefresh();
     } catch (verificationError: any) {
@@ -150,12 +199,97 @@ export default function VerificationStatus({
         </button>
       </div>
 
-      {!resumeUploaded ? (
+      <div className="space-y-6">
+        <div>
+          <label className="text-sm font-medium text-gray-600 mb-2 block">Status</label>
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
+              verificationStatus
+            )}`}
+          >
+            {getStatusLabel(verificationStatus)}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-medium text-slate-600 mb-2">Latest Resume Score</p>
+            <p className="text-3xl font-bold text-slate-900">{lastScore}%</p>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-medium text-slate-600 mb-2">Risk Level</p>
+            <p className={`font-semibold text-lg ${getRiskColor(riskLevel)}`}>{riskLevel}</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm font-medium text-slate-700 mb-3">Feedback</p>
+          {feedback && feedback.length ? (
+            <ul className="space-y-2 text-sm text-slate-700">
+              {feedback.map((item, index) => (
+                <li key={index} className="rounded-md border border-slate-200 bg-white p-3">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-slate-600">No detailed feedback has been generated yet. Upload and validate your resume to see item-level guidance.</p>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <p className="text-sm font-medium text-slate-700 mb-3">Projects</p>
+          {projects && projects.length > 0 ? (
+            <div className="space-y-3">
+              {projects.map((project, index) => (
+                <div key={index} className="rounded-md border border-slate-200 bg-white p-3">
+                  {project.githubUrl ? (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+                    >
+                      {project.name}
+                    </a>
+                  ) : (
+                    <p className="text-sm font-semibold text-slate-700">{project.name}</p>
+                  )}
+                  {project.description && (
+                    <p className="text-xs text-slate-600 mt-1">{project.description}</p>
+                  )}
+                  {project.technologies && project.technologies.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {project.technologies.map((tech, techIndex) => (
+                        <span
+                          key={techIndex}
+                          className="text-xs bg-indigo-100 text-indigo-700 rounded px-2 py-1"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-600">No projects found in your resume. Upload and validate your resume to see extracted projects here.</p>
+          )}
+        </div>
+
         <form onSubmit={handleUpload} className="space-y-6">
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-semibold text-slate-800 mb-2">
-              Upload your resume to start verification
+              {resumeUploaded ? "Replace your existing resume" : "Upload your resume to start verification"}
             </p>
+            {resumeUploaded ? (
+              <p className="text-sm text-slate-600 mb-3">
+                Uploading a new resume will replace the previous one and reset verification status.
+              </p>
+            ) : null}
+
             <label
               onDragOver={(event) => {
                 event.preventDefault();
@@ -216,106 +350,22 @@ export default function VerificationStatus({
             disabled={isSubmitting}
             className="h-11 w-full rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
           >
-            {isSubmitting ? "Uploading resume..." : "Upload resume"}
+            {isSubmitting ? "Uploading resume..." : resumeUploaded ? "Replace resume" : "Upload resume"}
           </button>
         </form>
-      ) : (
-        <div className="space-y-6">
-          <div>
-            <label className="text-sm font-medium text-gray-600 mb-2 block">Status</label>
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
-                verificationStatus
-              )}`}
-            >
-              {verificationStatus?.charAt(0).toUpperCase() +
-                verificationStatus?.slice(1).replace("-", " ")}
-            </span>
-          </div>
 
-          {verificationStatus === "completed" ? (
-            <>
-              <div>
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  Confidence Score
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-indigo-600 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${confidenceScore}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <span className="text-2xl font-bold text-indigo-600 w-20 text-right">
-                    {confidenceScore}%
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  Risk Level
-                </label>
-                <p className={`font-semibold text-lg ${getRiskColor(riskLevel)}`}>
-                  {riskLevel}
-                </p>
-              </div>
-
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                {confidenceScore >= 81 ? (
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">✓ Highly Trustworthy</span> - Your resume has strong verification evidence.
-                  </p>
-                ) : confidenceScore >= 61 ? (
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">✓ Strong Verification</span> - Your resume has good verification evidence.
-                  </p>
-                ) : confidenceScore >= 41 ? (
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">⚠ Partial Verification</span> - Some aspects of your resume need verification.
-                  </p>
-                ) : confidenceScore >= 21 ? (
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">⚠ Weak Evidence</span> - Limited verification evidence found.
-                  </p>
-                ) : (
-                  <p className="text-sm text-blue-800">
-                    <span className="font-semibold">⚠ No Supporting Evidence</span> - Upload and verify your resume to generate a score.
-                  </p>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm text-slate-700">
-                Your resume is uploaded, but verification has not completed yet. Click the button below to run verification.
-              </p>
-            </div>
-          )}
-
-          {error ? (
-            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          ) : null}
-
-          <button
-            onClick={handleVerify}
-            disabled={isVerifying}
-            className="h-11 w-full rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
-          >
-            {verificationStatus === "completed"
-              ? isVerifying
-                ? "Reverifying..."
-                : "Reverify resume"
-              : isVerifying
-              ? "Validating resume..."
-              : "Validate resume"}
-          </button>
-        </div>
-      )}
+        <button
+          onClick={handleVerify}
+          disabled={isVerifying}
+          className="h-11 w-full rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+        >
+          {isVerifying
+            ? "Validating resume..."
+            : isVerified
+            ? "Reverify resume"
+            : "Validate resume"}
+        </button>
+      </div>
     </div>
   );
 }

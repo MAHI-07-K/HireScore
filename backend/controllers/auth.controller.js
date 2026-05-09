@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { Student } from "../models/student.model.js";
 import { AppError } from "../utils/AppError.js";
 import { generateToken } from "../middleware/auth.middleware.js";
+import { ensureValidStudentId } from "../services/student.service.js";
 
 /**
  * Map student response - transforms MongoDB _id to studentId
@@ -149,7 +150,9 @@ export const loginStudentController = async (req, res, next) => {
  */
 export const getStudentProfileController = async (req, res, next) => {
   try {
-    const student = await Student.findById(req.user.studentId).populate("resumeId appliedDrives");
+    const validatedStudentId = ensureValidStudentId(req.user.studentId);
+    console.log("[DEBUG] getStudentProfileController findById studentId:", validatedStudentId, typeof validatedStudentId, JSON.stringify(validatedStudentId));
+    const student = await Student.findById(validatedStudentId).populate("resumeId appliedDrives");
 
     if (!student) {
       throw new AppError("Student not found", 404);

@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { verificationAPI } from "../services/api";
 
@@ -72,8 +72,7 @@ export const useVerificationStore = create<VerificationState>()(
     async uploadFile(formData) {
       try {
         await verificationAPI.upload(formData);
-        // after upload refresh data using stored studentId
-        const studentId = get().data?.studentId || (await verificationAPI.getCurrentUser?.())?.data?.studentId;
+        const studentId = get().data?.studentId;
         if (studentId) await get().fetch(studentId);
       } catch (e: any) {
         set({ error: e.response?.data?.message || "File upload failed" });

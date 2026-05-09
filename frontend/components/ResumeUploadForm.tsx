@@ -117,14 +117,14 @@ export function ResumeUploadForm({ studentId, onVerificationComplete }: ResumeUp
     }
 
     const formData = new FormData();
-    formData.append("resume", resumeFile);
+    formData.append("file", resumeFile);
     formData.append("githubUsername", githubUsername.trim());
     formData.append("certificateLinks", certificateLinks.trim());
 
     try {
       setIsSubmitting(true);
 
-      const response = await studentAPI.uploadResume(studentId, formData);
+      const response = await studentAPI.uploadResume(formData);
       setStudent(response.data.data);
       setError("");
     } catch (submitError: any) {
@@ -147,11 +147,11 @@ export function ResumeUploadForm({ studentId, onVerificationComplete }: ResumeUp
       setError("");
       setIsVerifying(true);
 
-      const response = await studentAPI.verifyResume(studentId);
+      const response = await studentAPI.verifyResume();
       setStudent(response.data.data);
       setError("");
 
-      const drivesResponse = await studentAPI.getAllDrives(studentId);
+      const drivesResponse = await studentAPI.getAllDrives();
       setDrives(drivesResponse.data.data.eligibleDrives || []);
 
       onVerificationComplete();

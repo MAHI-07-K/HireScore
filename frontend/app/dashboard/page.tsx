@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { studentAPI } from "@/services/api";
+import { authAPI, verificationAPI } from "@/services/api";
 import DrivesSection from "@/components/DrivesSection";
 import VerificationStatus from "@/components/VerificationStatus";
 
@@ -11,6 +11,8 @@ interface DashboardData {
   profile: any;
   verificationStatus: string;
   confidenceScore: number;
+  latestScore: number;
+  verificationFeedback: string[];
   riskLevel: string;
   eligibilityStatus: {
     isEligible: boolean;
@@ -22,10 +24,27 @@ interface DashboardData {
   appliedDrives: any[];
 }
 
+const defaultDashboardState: DashboardData = {
+  profile: null,
+  verificationStatus: "pending",
+  confidenceScore: 0,
+  latestScore: 0,
+  verificationFeedback: [],
+  riskLevel: "High Risk",
+  eligibilityStatus: {
+    isEligible: false,
+    minScoreRequired: 60,
+    currentScore: 0,
+  },
+  availableDrives: [],
+  lockedDrives: [],
+  appliedDrives: [],
+};
+
 export default function Dashboard() {
   const router = useRouter();
   const { student, token, isLoading: isAuthLoading, logout } = useAuth();
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData>(defaultDashboardState);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -37,11 +56,26 @@ export default function Dashboard() {
       return;
     }
 
-    fetchDashboard(student.studentId);
+    fetchDashboard();
   }, [student, token, isAuthLoading, router]);
 
-  const fetchDashboard = async (studentId = student?.studentId) => {
-    if (!studentId || !token) {
+  const computeEligibility = (score: number) => {
+    const minScoreRequired = 60;
+    return {
+      isEligible: score >= minScoreRequired,
+      minScoreRequired,
+      currentScore: score,
+    };
+  };
+
+  const computeRiskLevel = (score: number): string => {
+    if (score >= 70) return "Low Risk";
+    if (score >= 40) return "Medium Risk";
+    return "High Risk";
+  };
+
+  const fetchDashboard = async () => {
+    if (!token) {
       logout();
       router.push("/auth");
       return;
@@ -49,8 +83,30 @@ export default function Dashboard() {
 
     try {
       setIsLoading(true);
-      const response = await studentAPI.getDashboard(studentId);
-      setDashboardData(response.data.data);
+      const [profileResponse, verificationResponse] = await Promise.all([
+        authAPI.getProfile(),
+        verificationAPI.get(student?.studentId || ""),
+      ]);
+
+      const profile = profileResponse.data.data;
+      const verification = verificationResponse.data.data;
+      const confidenceScore =
+        profile?.confidenceData?.score ?? verification?.overallScore ?? 0;
+      const latestScore = verification?.overallScore ?? confidenceScore;
+      const riskLevel = computeRiskLevel(latestScore);
+
+      setDashboardData({
+        profile,
+        verificationStatus: verification?.verificationStatus || profile?.verificationStatus || "pending",
+        confidenceScore,
+        latestScore: verification?.overallScore ?? confidenceScore,
+        verificationFeedback: verification?.feedback || [],
+        riskLevel,
+        eligibilityStatus: computeEligibility(confidenceScore),
+        availableDrives: [],
+        lockedDrives: [],
+        appliedDrives: profile?.appliedDrives || [],
+      });
       setError("");
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -143,6 +199,8 @@ export default function Dashboard() {
             resumeUploaded={!!dashboardData?.profile?.resumeId}
             verificationStatus={dashboardData?.verificationStatus || "pending"}
             confidenceScore={dashboardData?.confidenceScore || 0}
+            latestScore={dashboardData?.latestScore || 0}
+            feedback={dashboardData?.verificationFeedback || []}
             riskLevel={dashboardData?.riskLevel || "unknown"}
             onRefresh={fetchDashboard}
           />

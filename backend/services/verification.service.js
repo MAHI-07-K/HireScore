@@ -25,12 +25,23 @@ export const runGithubVerification = async ({
   githubUsername,
   skills = [],
   projects = [],
-}) =>
-  analyzeGithubEvidence({
+}) => {
+  // Prepare project names for text matching and GitHub URLs for direct verification
+  const projectsToAnalyze = projects.map((project) =>
+    typeof project === "string" ? project : project.name
+  );
+  
+  const projectUrls = projects
+    .filter((project) => typeof project === "object" && project.githubUrl)
+    .map((project) => project.githubUrl);
+
+  return analyzeGithubEvidence({
     githubUsername,
     claimedSkills: uniqueNormalized(skills),
-    claimedProjects: projects,
+    claimedProjects: projectsToAnalyze,
+    projectUrls,
   });
+};
 
 export const runCertificateVerification = async ({
   certifications = [],

@@ -51,9 +51,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedStudent = localStorage.getItem("student");
 
     if (savedToken && savedStudent) {
-      setStoredAuthToken(savedToken);
-      setToken(savedToken);
-      setStudent(JSON.parse(savedStudent));
+      try {
+        setStoredAuthToken(savedToken);
+        setToken(savedToken);
+        const parsed = JSON.parse(savedStudent);
+        if (parsed?.studentId) parsed.studentId = String(parsed.studentId);
+        setStudent(parsed);
+      } catch (error) {
+        // If localStorage is corrupted, clear it and start fresh
+        console.error("Failed to parse stored student data:", error);
+        clearStoredAuthToken();
+        localStorage.removeItem("student");
+      }
     }
 
     setIsLoading(false);
@@ -64,12 +73,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await authAPI.register(data);
       const { token, student } = response.data.data;
+      const normalizedStudent = {
+        ...student,
+        studentId: String(student.studentId),
+      };
 
       setStoredAuthToken(token);
-      localStorage.setItem("student", JSON.stringify(student));
+      localStorage.setItem("student", JSON.stringify(normalizedStudent));
 
       setToken(token);
-      setStudent(student);
+      setStudent(normalizedStudent);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Registration failed");
     } finally {
@@ -82,12 +95,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await authAPI.login({ rollNumber, password });
       const { token, student } = response.data.data;
+      const normalizedStudent = {
+        ...student,
+        studentId: String(student.studentId),
+      };
 
       setStoredAuthToken(token);
-      localStorage.setItem("student", JSON.stringify(student));
+      localStorage.setItem("student", JSON.stringify(normalizedStudent));
 
       setToken(token);
-      setStudent(student);
+      setStudent(normalizedStudent);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Login failed");
     } finally {

@@ -84,10 +84,22 @@ const stripBulletPrefix = (line) =>
 
 const unique = (items) => [...new Set(items.filter(Boolean))];
 
-const extractGithubLinksFromLine = (line) =>
-  (line.match(/https?:\/\/github\.com\/[^\s)]+/gi) || []).map((link) =>
-    link.replace(/[.,]$/, "")
-  );
+const extractGithubLinksFromLine = (line) => {
+  const links = [];
+  
+  // Match full URLs with https:// or http://
+  const fullUrlMatches = line.match(/https?:\/\/github\.com\/[^\s)>\]]+/gi) || [];
+  links.push(...fullUrlMatches);
+  
+  // Match URLs without protocol (github.com/...)
+  const noProtocolMatches = line.match(/github\.com\/[^\s)>\]]+/gi) || [];
+  links.push(...noProtocolMatches.map((url) => `https://${url}`));
+  
+  // Clean up trailing punctuation and return unique links
+  return [...new Set(links.map((link) => 
+    link.replace(/[.,;)\]>]+$/, "").replace(/^https:\/\/(https?:\/\/)/, "$1")
+  ))];
+};
 
 const detectSection = (line) => {
   const normalized = normalizeLine(line);
@@ -145,9 +157,10 @@ const extractSkills = (sections, lowerText) => {
         .split(/[,/]/)
     )
     .map(stripBulletPrefix)
+    .map((skill) => skill.trim().toLowerCase())
     .filter((skill) => skill.length > 1 && skill.length < 40);
 
-  return unique([...skillsFromDictionary, ...skillsFromSection]);
+  return unique([...skillsFromDictionary, ...skillsFromSection].map((skill) => skill.toLowerCase()));
 };
 
 const isLikelyProjectTitle = (line) => {
@@ -217,10 +230,21 @@ export const parseResumeText = (text) => {
   const lowerText = normalizedText.toLowerCase();
   const sections = collectSections(normalizedText);
 
+  const extractedProjects = extractProjects(sections);
+  const extractedCertifications = extractCertifications(sections);
+
   return {
     skills: extractSkills(sections, lowerText),
-    projects: extractProjects(sections).map((project) => project.title),
-    projectDetails: extractProjects(sections),
-    certifications: extractCertifications(sections),
+    projects: extractedProjects.map((project) => ({
+      name: project.title,
+      description: "",
+      technologies: [],
+      githubUrl: project.githubLinks?.[0] || "",
+    })),
+    certifications: extractedCertifications.map((cert) => ({
+      name: cert,
+      issuer: "",
+      date: "",
+    })),
   };
 };

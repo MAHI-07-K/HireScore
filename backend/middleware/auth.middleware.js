@@ -21,7 +21,7 @@ export const protectRoute = (req, res, next) => {
 };
 
 export const generateToken = (studentId) => {
-  return jwt.sign({ studentId }, process.env.JWT_SECRET || "your-secret-key", {
+  return jwt.sign({ studentId: String(studentId) }, process.env.JWT_SECRET || "your-secret-key", {
     expiresIn: "7d",
   });
 };

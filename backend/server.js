@@ -6,6 +6,15 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
+// Global error handlers
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[UNHANDLED REJECTION]", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("[UNCAUGHT EXCEPTION]", error);
+});
+
 const startServer = async () => {
   try {
     await connectDatabase();

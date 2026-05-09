@@ -1,8 +1,13 @@
+import fs from "fs";
+import pdfParse from "pdf-parse";
 import { Verification } from "../models/verification.model.js";
+import { Resume } from "../models/resume.model.js";
 import { runFullVerification } from "../services/verification.service.js";
 import { Student } from "../models/student.model.js";
 import { AppError } from "../utils/AppError.js";
 import { logger } from "../phase2-verification/utils/logger.js";
+import { ensureValidStudentId } from "../services/student.service.js";
+import { parseResumeText } from "../utils/resumeParser.js";
 
 // ─── GET /api/verification/:studentId ──────────────────────────────────────
 export const getVerificationController = async (req, res, next) => {
@@ -42,10 +47,51 @@ export const getVerificationController = async (req, res, next) => {
   }
 };
 
+// ─── GET /api/verification/resume ─────────────────────────────────────────
+export const getResumeController = async (req, res, next) => {
+  try {
+    const studentId = ensureValidStudentId(req.user.studentId);
+
+    const student = await Student.findById(studentId);
+    if (!student || !student.resumeId) {
+      return res.json({
+        success: true,
+        data: {
+          _id: null,
+          parsedData: {
+            skills: [],
+            projects: [],
+            certifications: [],
+          },
+        },
+      });
+    }
+
+    const resume = await Resume.findById(student.resumeId);
+    if (!resume) {
+      return res.json({
+        success: true,
+        data: {
+          _id: null,
+          parsedData: {
+            skills: [],
+            projects: [],
+            certifications: [],
+          },
+        },
+      });
+    }
+
+    res.json({ success: true, data: resume });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ─── POST /api/verification/start ──────────────────────────────────────────
 export const startVerificationController = async (req, res, next) => {
   try {
-    const studentId = req.user.studentId;
+    const studentId = ensureValidStudentId(req.user.studentId);
 
     let verification = await Verification.findOne({ studentId });
     if (!verification) {
@@ -67,16 +113,43 @@ export const startVerificationController = async (req, res, next) => {
 // ─── POST /api/verification/upload ─────────────────────────────────────────
 export const uploadFileController = async (req, res, next) => {
   try {
-    const studentId = req.user.studentId;
-
-    // upsert verification record
-    let verification = await Verification.findOne({ studentId });
-    if (!verification) {
-      verification = await Verification.create({ studentId, verificationStatus: "In Progress" });
-    }
+    const studentId = ensureValidStudentId(req.user.studentId);
 
     if (!req.file) {
       return next(new AppError("No file uploaded.", 400));
+    }
+
+    const filePath = req.file.path;
+    const dataBuffer = fs.readFileSync(filePath);
+    const pdfData = await pdfParse(dataBuffer);
+    const extractedText = String(pdfData.text || "");
+    const parsedData = parseResumeText(extractedText);
+    const githubUsername = String(req.body.githubUsername || "").trim();
+    const certificateLinks = String(req.body.certificateLinks || "")
+      .split(/\r?\n/)
+      .map((link) => link.trim())
+      .filter(Boolean);
+
+    const resumeRecord = await Resume.create({
+      extractedText,
+      parsedData,
+      githubUsername,
+      certificateLinks,
+      uploadedBy: studentId,
+    });
+
+    await Student.findByIdAndUpdate(studentId, {
+      resumeId: resumeRecord._id,
+      resumeUrl: `/uploads/${req.file.filename}`,
+    });
+
+    let verification = await Verification.findOne({ studentId });
+    if (!verification) {
+      verification = await Verification.create({ studentId, verificationStatus: "In Progress" });
+    } else {
+      verification.verificationStatus = "In Progress";
+      verification.feedback = [];
+      verification.lastVerifiedAt = null;
     }
 
     const fileRecord = {
@@ -89,7 +162,14 @@ export const uploadFileController = async (req, res, next) => {
     verification.uploadedFiles.push(fileRecord);
     await verification.save();
 
-    res.json({ success: true, data: fileRecord });
+    res.json({
+      success: true,
+      message: "Resume uploaded successfully. You can now validate it.",
+      data: {
+        file: fileRecord,
+        resumeId: resumeRecord._id,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -98,7 +178,7 @@ export const uploadFileController = async (req, res, next) => {
 // ─── PATCH /api/verification/update ────────────────────────────────────────
 export const updateVerificationController = async (req, res, next) => {
   try {
-    const studentId = req.user.studentId;
+    const studentId = ensureValidStudentId(req.user.studentId);
     const { linkedinUrl, githubUrl, portfolioUrl } = req.body;
 
     let verification = await Verification.findOne({ studentId });
@@ -120,9 +200,10 @@ export const updateVerificationController = async (req, res, next) => {
 // ─── POST /api/verification/submit ─────────────────────────────────────────
 export const submitVerificationController = async (req, res, next) => {
   try {
-    const studentId = req.user.studentId;
+    const studentId = ensureValidStudentId(req.user.studentId);
 
     // Fetch student to get resumeId
+    console.log("[DEBUG] submitVerificationController findById studentId:", studentId, typeof studentId, JSON.stringify(studentId));
     const student = await Student.findById(studentId);
     if (!student) return next(new AppError("Student not found.", 404));
     if (!student.resumeId) {

@@ -35,6 +35,7 @@ export const analyzeGithubEvidence = async ({
   githubUsername,
   claimedSkills = [],
   claimedProjects = [],
+  projectUrls = [],
 }) => {
   if (!githubUsername?.trim()) {
     return {
@@ -95,7 +96,8 @@ export const analyzeGithubEvidence = async ({
 
     const suspiciousSkills = missingSkills.filter((skill) => skill.length > 10);
 
-    const verifiedProjects = uniqueNormalized(claimedProjects)
+    // Verify projects by name matching and direct URL verification
+    const nameBasedVerifiedProjects = uniqueNormalized(claimedProjects)
       .map((project) => {
         const bestMatch = repoEvidence
           .map(({ repo, readme }) => ({
@@ -120,11 +122,52 @@ export const analyzeGithubEvidence = async ({
       })
       .filter(Boolean);
 
+    // Verify projects by direct GitHub URLs
+    const urlBasedVerifiedProjects = (projectUrls || [])
+      .map((projectUrl) => {
+        try {
+          // Extract owner/repo from GitHub URL
+          // Supports formats: https://github.com/owner/repo, github.com/owner/repo, etc.
+          const match = projectUrl.match(/github\.com\/([^/]+)\/([^/\s?]+)/i);
+          if (!match) return null;
+
+          const [, owner, repo] = match;
+          const fullName = `${owner}/${repo}`;
+          
+          // Check if this repo is in the user's repos
+          const matchedRepo = repoEvidence.find(
+            ({ repo: r }) =>
+              r.full_name.toLowerCase() === fullName.toLowerCase()
+          );
+
+          if (!matchedRepo) return null;
+
+          return {
+            claim: matchedRepo.repo.name,
+            repository: matchedRepo.repo.full_name,
+            url: matchedRepo.repo.html_url,
+            matchScore: 1.0, // Direct URL match has perfect score
+          };
+        } catch (error) {
+          logger.warn("Failed to parse project URL", { projectUrl, error: error.message });
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    // Combine both verification methods, preferring URL-based matches
+    const verifiedProjects = [
+      ...urlBasedVerifiedProjects,
+      ...nameBasedVerifiedProjects.filter(
+        (np) => !urlBasedVerifiedProjects.some((up) => up.repository === np.repository)
+      ),
+    ];
+
     const skillMatchRatio = normalizedSkills.length
       ? matchedSkills.length / normalizedSkills.length
       : 0;
-    const projectMatchRatio = claimedProjects.length
-      ? verifiedProjects.length / claimedProjects.length
+    const projectMatchRatio = claimedProjects.length || projectUrls.length
+      ? verifiedProjects.length / (claimedProjects.length || projectUrls.length)
       : 0;
 
     const fakeGithubRisk = scoreFakeGithubRisk(profile, repos, activity);
