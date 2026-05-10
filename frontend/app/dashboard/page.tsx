@@ -274,6 +274,7 @@ export default function Dashboard() {
         <div className="space-y-8">
           <DrivesSection
             studentId={student?.studentId || ""}
+            canApply={dashboardData?.eligibilityStatus?.isEligible ?? false}
             onApplySuccess={fetchDashboard}
           />
         </div>

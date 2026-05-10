@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getStoredAuthToken } from "@/services/api";
-import { useAuth } from "@/context/AuthContext";
 
 interface LiveDrive {
   _id: string;
@@ -16,22 +15,19 @@ interface LiveDrive {
 
 interface DrivesSectionProps {
   studentId: string;
+  canApply: boolean;
   onApplySuccess: () => void;
 }
 
 export default function DrivesSection({
   studentId,
+  canApply,
   onApplySuccess,
 }: DrivesSectionProps) {
-  const { student } = useAuth();
   const [liveDrives, setLiveDrives] = useState<LiveDrive[]>([]);
   const [applyingDriveId, setApplyingDriveId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-
-  const confidenceScore =
-    student?.confidenceData?.score ?? student?.confidenceScore ?? 0;
-  const canApply = confidenceScore >= 60;
 
   useEffect(() => {
     fetchLiveDrives();
