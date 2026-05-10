@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { getStoredAuthToken } from "@/services/api";
 
 interface LiveDrive {
   _id: string;
@@ -48,7 +49,7 @@ export default function DrivesSection({
 
       const token = localStorage.getItem('token'); // Assuming student token
       await axios.post('/api/drive/apply', { driveId }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${getStoredAuthToken()}` }
       });
 
       onApplySuccess();

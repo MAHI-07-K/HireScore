@@ -92,8 +92,8 @@ export const studentAPI = {
   getEligibleDrives: () => apiClient.get(`/auth/profile`),
   getLockedDrives: () => apiClient.get(`/auth/profile`),
   getAllDrives: () => apiClient.get(`/auth/profile`),
-  applyForDrive: (_studentId: any, _driveId: any) =>
-    Promise.reject(new Error("Drive application is not supported by the current backend.")),
+  applyForDrive: (_studentId: any, driveId: any) =>
+    apiClient.post('/drive/apply', { driveId }),
 };
 
 // Verification APIs

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
-import { DriveApplication } from '@/lib/models/driveApplication.model';
+import { DriveCandidate } from '@/lib/models/driveCandidate.model';
 import { Drive } from '@/lib/models/drive.model';
 import { Student } from '@/lib/models/student.model';
 
@@ -30,18 +29,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const applications = await DriveApplication.find({ driveId: drive._id })
+    const candidates = await DriveCandidate.find({ driveId: drive._id })
       .populate({
         path: 'studentId',
         select: 'fullName email skills hireScore confidenceScore resumeUrl',
         model: Student
       })
-      .sort({ appliedAt: -1 });
+      .sort({ createdAt: -1 });
 
-    return NextResponse.json({ applications });
+    return NextResponse.json({ candidates });
 
   } catch (error) {
-    console.error('Get applications error:', error);
+    console.error('Get pipeline candidates error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

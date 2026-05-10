@@ -14,22 +14,14 @@ export const getAdminAnalytics = async (req, res, next) => {
   try {
     const totalStudents = await Student.countDocuments();
 
-    const confidenceDocs = await Student.find(
-      { "confidenceData.score": { $gt: 0 } },
-      { "confidenceData.score": 1 }
-    ).lean();
+    const students = await Student.find({}, { confidenceData: 1, hireScore: 1 }).lean();
 
-    const verificationDocs = await Verification.find(
-      { overallScore: { $gt: 0 } },
-      { overallScore: 1 }
-    ).lean();
-
-    const confidenceScores = confidenceDocs
+    const confidenceScores = students
       .map((student) => student.confidenceData?.score || 0)
       .filter((score) => score > 0);
 
-    const hireScores = verificationDocs
-      .map((verification) => verification.overallScore || 0)
+    const hireScores = students
+      .map((student) => student.hireScore || 0)
       .filter((score) => score > 0);
 
     const totalVerifiedStudents = await Verification.countDocuments({

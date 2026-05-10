@@ -15,4 +15,4 @@ const driveCandidateSchema = new mongoose.Schema({
 // Indexes
 driveCandidateSchema.index({ driveId: 1, studentId: 1 }, { unique: true });
 
-export const DriveCandidate = mongoose.model("DriveCandidate", driveCandidateSchema);
+export const DriveCandidate = mongoose.models.DriveCandidate || mongoose.model("DriveCandidate", driveCandidateSchema);

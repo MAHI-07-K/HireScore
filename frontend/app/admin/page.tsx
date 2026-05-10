@@ -80,7 +80,7 @@ export default function AdminDashboard() {
 
         {/* Error Message */}
         {error && (
-          <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+          <div className="p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
             {error}
           </div>
         )}
@@ -91,28 +91,28 @@ export default function AdminDashboard() {
             title="Total Students"
             value={analytics?.totalStudents || 0}
             icon={Users}
-            color="bg-blue-500"
+            color="bg-indigo-600"
             loading={loading}
           />
           <StatCard
             title="Average Confidence Score"
             value={`${analytics?.averageConfidenceScore || 0}%`}
             icon={TrendingUp}
-            color="bg-green-500"
+            color="bg-green-600"
             loading={loading}
           />
           <StatCard
             title="Average HireScore"
             value={`${analytics?.averageHireScore || 0}%`}
             icon={Award}
-            color="bg-purple-500"
+            color="bg-purple-600"
             loading={loading}
           />
           <StatCard
             title="Verified Students"
             value={analytics?.totalVerifiedStudents || 0}
             icon={CheckCircle}
-            color="bg-indigo-500"
+            color="bg-blue-600"
             loading={loading}
           />
         </div>

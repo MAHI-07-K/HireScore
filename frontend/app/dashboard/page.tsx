@@ -165,7 +165,7 @@ export default function Dashboard() {
         )}
 
         {/* Profile Summary Card */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           {/* Profile */}
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Roll Number</h3>
@@ -188,6 +188,14 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-sm font-medium text-gray-600 mb-2">Branch</h3>
             <p className="text-xl font-semibold text-gray-900 truncate">{student?.branch || "N/A"}</p>
+          </div>
+
+          {/* HireScore */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-600 mb-2">HireScore</h3>
+            <p className="text-2xl font-bold text-gray-900">
+              {dashboardData.profile?.hireScore?.toFixed(1) ?? 0}%
+            </p>
           </div>
         </div>
 

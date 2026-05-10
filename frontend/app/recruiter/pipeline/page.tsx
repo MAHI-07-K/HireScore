@@ -39,30 +39,11 @@ export default function RecruitmentPipeline() {
         return;
       }
 
-      // For now, we'll get candidates from applications that are shortlisted
-      // In a real implementation, you'd have a separate endpoint for pipeline candidates
-      const response = await axios.get('/api/applications', {
+      const response = await axios.get('/api/pipeline', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Filter shortlisted applications and map to candidates
-      // This is a simplified version - you'd need a proper pipeline endpoint
-      const shortlisted = response.data.applications.filter(
-        (app: any) => app.applicationStatus === 'shortlisted'
-      );
-
-      // Mock candidates data - in real implementation, fetch from pipeline API
-      const mockCandidates: DriveCandidate[] = shortlisted.map((app: any, index: number) => ({
-        _id: `candidate_${index}`,
-        studentId: app.studentId,
-        currentRound: 1,
-        completedRounds: 0,
-        remainingRounds: 4, // Assuming 4 rounds
-        status: 'active',
-        driveScore: 0
-      }));
-
-      setCandidates(mockCandidates);
+      setCandidates(response.data.candidates);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to fetch candidates');
     } finally {

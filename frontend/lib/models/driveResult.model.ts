@@ -16,4 +16,4 @@ const driveResultSchema = new mongoose.Schema({
 // Indexes
 driveResultSchema.index({ studentId: 1, driveId: 1 }, { unique: true });
 
-export const DriveResult = mongoose.model("DriveResult", driveResultSchema);
+export const DriveResult = mongoose.models.DriveResult || mongoose.model("DriveResult", driveResultSchema);
