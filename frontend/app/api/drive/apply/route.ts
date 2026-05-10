@@ -47,6 +47,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const confidenceScore =
+      student.confidenceData?.score ?? student.confidenceScore ?? 0;
+
+    if (confidenceScore < 60) {
+      return NextResponse.json(
+        {
+          error:
+            'Cannot apply for drive until confidence score is at least 60%.'
+        },
+        { status: 400 }
+      );
+    }
+
     // Check if already applied
     const existingApplication = await DriveApplication.findOne({
       driveId,

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getStoredAuthToken } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface LiveDrive {
   _id: string;
@@ -22,10 +23,15 @@ export default function DrivesSection({
   studentId,
   onApplySuccess,
 }: DrivesSectionProps) {
+  const { student } = useAuth();
   const [liveDrives, setLiveDrives] = useState<LiveDrive[]>([]);
   const [applyingDriveId, setApplyingDriveId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const confidenceScore =
+    student?.confidenceData?.score ?? student?.confidenceScore ?? 0;
+  const canApply = confidenceScore >= 60;
 
   useEffect(() => {
     fetchLiveDrives();
@@ -92,10 +98,14 @@ export default function DrivesSection({
                 </div>
                 <button
                   onClick={() => handleApplyForDrive(drive._id)}
-                  disabled={applyingDriveId === drive._id}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
+                  disabled={applyingDriveId === drive._id || !canApply}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {applyingDriveId === drive._id ? 'Applying...' : 'Apply'}
+                  {applyingDriveId === drive._id
+                    ? 'Applying...'
+                    : canApply
+                    ? 'Apply'
+                    : 'Not eligible'}
                 </button>
               </div>
 
