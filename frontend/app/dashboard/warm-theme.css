@@ -1,0 +1,251 @@
+/* Warm Color Theme - Light Warm Colors Throughout */
+
+/* Primary backgrounds */
+.warm-theme {
+  background-color: #FFFBF7 !important;
+}
+
+.warm-theme .bg-white {
+  background-color: #FFFBF7 !important;
+}
+
+.warm-theme .bg-gray-50,
+.warm-theme .bg-slate-50 {
+  background-color: #FFF8F0 !important;
+}
+
+.warm-theme .bg-gray-100,
+.warm-theme .bg-slate-100 {
+  background-color: #FFEEE4 !important;
+}
+
+.warm-theme .bg-gray-200,
+.warm-theme .bg-slate-200 {
+  background-color: #FFE0D1 !important;
+}
+
+.warm-theme .bg-gray-300,
+.warm-theme .bg-slate-300 {
+  background-color: #FFD9C7 !important;
+}
+
+/* Text colors */
+.warm-theme .text-gray-900,
+.warm-theme .text-slate-900 {
+  color: #5D4E37 !important;
+}
+
+.warm-theme .text-gray-800,
+.warm-theme .text-slate-800 {
+  color: #6F6353 !important;
+}
+
+.warm-theme .text-gray-700,
+.warm-theme .text-slate-700 {
+  color: #8B7A67 !important;
+}
+
+.warm-theme .text-gray-600,
+.warm-theme .text-slate-600 {
+  color: #A39382 !important;
+}
+
+.warm-theme .text-gray-500,
+.warm-theme .text-slate-500 {
+  color: #B8A995 !important;
+}
+
+/* Border colors */
+.warm-theme .border-gray-200,
+.warm-theme .border-slate-200 {
+  border-color: #FFE0D1 !important;
+}
+
+.warm-theme .border-gray-300,
+.warm-theme .border-slate-300 {
+  border-color: #FFD9C7 !important;
+}
+
+.warm-theme .border-gray-500,
+.warm-theme .border-slate-500 {
+  border-color: #C4A896 !important;
+}
+
+/* Primary action colors (warm orange) */
+.warm-theme .bg-indigo-600,
+.warm-theme .bg-blue-600 {
+  background-color: #E89A3B !important;
+}
+
+.warm-theme .hover\:bg-indigo-700:hover,
+.warm-theme .hover\:bg-blue-700:hover {
+  background-color: #D9833D !important;
+}
+
+.warm-theme .text-indigo-600,
+.warm-theme .text-blue-600 {
+  color: #E89A3B !important;
+}
+
+.warm-theme .hover\:text-indigo-700:hover,
+.warm-theme .hover\:text-blue-700:hover {
+  color: #D9833D !important;
+}
+
+.warm-theme .bg-indigo-100,
+.warm-theme .bg-blue-100 {
+  background-color: #FFE0D1 !important;
+}
+
+.warm-theme .text-indigo-700,
+.warm-theme .text-blue-700,
+.warm-theme .text-indigo-800,
+.warm-theme .text-blue-800 {
+  color: #C2410C !important;
+}
+
+.warm-theme .border-indigo-200,
+.warm-theme .border-blue-200 {
+  border-color: #FFEEE4 !important;
+}
+
+/* Success/Green status - warm green */
+.warm-theme .bg-green-100 {
+  background-color: #E8F5E9 !important;
+}
+
+.warm-theme .text-green-800,
+.warm-theme .text-green-700 {
+  color: #6B9B6B !important;
+}
+
+.warm-theme .bg-green-500,
+.warm-theme .bg-green-600 {
+  background: linear-gradient(135deg, #8FBC8F 0%, #7BA87B 100%) !important;
+}
+
+/* Warning/Yellow status - warm yellow */
+.warm-theme .bg-yellow-100 {
+  background-color: #FFF9E6 !important;
+  border: 1px solid #F5C56F !important;
+}
+
+.warm-theme .text-yellow-800,
+.warm-theme .text-yellow-700 {
+  color: #D4860C !important;
+}
+
+.warm-theme .bg-yellow-500,
+.warm-theme .bg-yellow-600 {
+  background: linear-gradient(135deg, #F9E1A0 0%, #F3D06F 100%) !important;
+}
+
+/* Error/Red status - warm red/coral */
+.warm-theme .bg-red-100 {
+  background-color: #FFEBEE !important;
+  border: 1px solid #EDB8B8 !important;
+}
+
+.warm-theme .text-red-800,
+.warm-theme .text-red-700 {
+  color: #B8604D !important;
+}
+
+.warm-theme .bg-red-500,
+.warm-theme .bg-red-600 {
+  background: linear-gradient(135deg, #D9A88E 0%, #C89580 100%) !important;
+}
+
+/* Purple accent - warm mauve */
+.warm-theme .bg-purple-600,
+.warm-theme .bg-purple-500 {
+  background-color: #C4A896 !important;
+}
+
+.warm-theme .text-purple-600,
+.warm-theme .text-purple-700 {
+  color: #A0794D !important;
+}
+
+/* Inputs and textareas */
+.warm-theme input,
+.warm-theme textarea {
+  background-color: #FFFBF7 !important;
+  color: #5D4E37 !important;
+  border-color: #FFD9C7 !important;
+}
+
+.warm-theme input::placeholder,
+.warm-theme textarea::placeholder {
+  color: #B8A995 !important;
+}
+
+/* Disabled state */
+.warm-theme .bg-indigo-600:disabled,
+.warm-theme .bg-blue-600:disabled {
+  background: #D4C4B0 !important;
+  color: #FFFFFF !important;
+}
+
+/* Shadow adjustments */
+.warm-theme .shadow {
+  box-shadow: 0 10px 15px -3px rgba(93, 78, 55, 0.1), 0 4px 6px -2px rgba(93, 78, 55, 0.05) !important;
+}
+
+.warm-theme .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(93, 78, 55, 0.1), 0 2px 4px -1px rgba(93, 78, 55, 0.06) !important;
+}
+
+.warm-theme .shadow-lg {
+  box-shadow: 0 20px 25px -5px rgba(93, 78, 55, 0.1), 0 10px 10px -5px rgba(93, 78, 55, 0.04) !important;
+}
+
+/* Hover states */
+.warm-theme .hover\:bg-gray-50:hover {
+  background-color: #FFF8F0 !important;
+}
+
+.warm-theme .hover\:bg-gray-100:hover {
+  background-color: #FFEEE4 !important;
+}
+
+/* Focus states */
+.warm-theme input:focus,
+.warm-theme textarea:focus {
+  border-color: #E89A3B !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(232, 154, 59, 0.1) !important;
+}
+
+/* Button styles */
+.warm-theme button:not(:disabled) {
+  background-color: #E89A3B !important;
+  color: #FFFFFF !important;
+}
+
+.warm-theme button:not(:disabled):hover {
+  background-color: #D9833D !important;
+}
+
+/* Cards with borders */
+.warm-theme .border {
+  border-color: #FFE0D1 !important;
+}
+
+.warm-theme .border-b,
+.warm-theme .border-t,
+.warm-theme .border-l,
+.warm-theme .border-r {
+  border-color: #FFE0D1 !important;
+}
+
+/* Dashed borders */
+.warm-theme .border-dashed {
+  border-color: #FFD9C7 !important;
+}
+
+/* Custom gradient backgrounds */
+.warm-theme .bg-gradient-to-r,
+.warm-theme .bg-gradient-to-b {
+  background: linear-gradient(135deg, #FFFBF7 0%, #FFF8F0 100%) !important;
+}

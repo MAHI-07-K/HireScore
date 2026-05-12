@@ -60,6 +60,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (drive.minCgpa !== undefined && (student.cgpa || 0) < drive.minCgpa) {
+      return NextResponse.json(
+        { error: `Minimum CGPA of ${drive.minCgpa} is required to apply for this drive` },
+        { status: 400 }
+      );
+    }
+
+    if (drive.requiredSkills && drive.requiredSkills.length > 0) {
+      const studentSkills = (student.skills || []).map((s: string) => s.toLowerCase());
+      const missingSkills = drive.requiredSkills.filter((rs: string) => !studentSkills.includes(rs.toLowerCase()));
+      
+      if (missingSkills.length > 0) {
+        return NextResponse.json(
+          { error: `Missing required skills: ${missingSkills.join(', ')}` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Check if already applied
     const existingApplication = await DriveApplication.findOne({
       driveId,

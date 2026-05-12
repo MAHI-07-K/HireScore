@@ -81,12 +81,12 @@ export default function RecruiterDashboard() {
   const getStatusBadge = () => {
     if (drive.driveStatus === 'live') return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">LIVE</span>;
     if (drive.driveStatus === 'applications_closed') return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">APPLICATIONS CLOSED</span>;
-    if (drive.driveStatus === 'active') return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">RECRUITMENT ACTIVE</span>;
+    if (drive.driveStatus === 'active') return <span className="px-2 py-1 rounded-full text-xs" style={{backgroundColor: '#FFE0D1', color: '#C2410C'}}>RECRUITMENT ACTIVE</span>;
     return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">DRAFT</span>;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 warm-theme">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
@@ -95,19 +95,19 @@ export default function RecruiterDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-medium text-gray-900">Company Name</h3>
-            <p className="text-2xl font-bold text-indigo-600">{drive.companyName}</p>
+            <p className="text-2xl font-bold" style={{color: '#E89A3B'}}>{drive.companyName}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-medium text-gray-900">Job Role</h3>
-            <p className="text-2xl font-bold text-indigo-600">{drive.role}</p>
+            <p className="text-2xl font-bold" style={{color: '#E89A3B'}}>{drive.role}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-medium text-gray-900">Current Round</h3>
-            <p className="text-2xl font-bold text-indigo-600">1</p>
+            <p className="text-2xl font-bold" style={{color: '#E89A3B'}}>1</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-lg font-medium text-gray-900">Total Rounds</h3>
-            <p className="text-2xl font-bold text-indigo-600">{drive.totalRounds}</p>
+            <p className="text-2xl font-bold" style={{color: '#E89A3B'}}>{drive.totalRounds}</p>
           </div>
         </div>
 
@@ -121,7 +121,8 @@ export default function RecruiterDashboard() {
             {!drive.isLive && (
               <button
                 onClick={handleGoLive}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="text-white px-4 py-2 rounded hover:opacity-90"
+                style={{backgroundColor: '#E89A3B'}}
               >
                 Go Live
               </button>
@@ -130,7 +131,8 @@ export default function RecruiterDashboard() {
             {drive.isLive && drive.applicationsOpen && (
               <button
                 onClick={handleCloseApplications}
-                className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                className="text-white px-4 py-2 rounded hover:opacity-90"
+                style={{backgroundColor: '#E89A3B'}}
               >
                 Close Applications
               </button>

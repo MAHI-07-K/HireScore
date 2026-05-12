@@ -149,13 +149,10 @@ const extractSkills = (sections, lowerText) => {
   );
 
   const skillsFromSection = (sections.skills || [])
-    .flatMap((line) =>
-      line
-        .split(/[:,]/)
-        .slice(1)
-        .join(",")
-        .split(/[,/]/)
-    )
+    .flatMap((line) => {
+      const parts = line.includes(':') ? line.split(':').slice(1).join(',') : line;
+      return parts.split(/[,/]/);
+    })
     .map(stripBulletPrefix)
     .map((skill) => skill.trim().toLowerCase())
     .filter((skill) => skill.length > 1 && skill.length < 40);

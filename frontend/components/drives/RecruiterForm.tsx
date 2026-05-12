@@ -44,24 +44,30 @@ export default function RecruiterForm({ recruiter, onClose, onSubmit }: Recruite
     event.preventDefault();
     setError("");
 
-    if (!companyName.trim() || !recruiterId.trim() || !password.trim() || !accountExpiryDate) {
-      setError("All fields are required.");
+    if (!companyName.trim() || !recruiterId.trim() || !accountExpiryDate) {
+      setError("Company Name, Recruiter ID, and Expiry Date are required.");
+      return;
+    }
+
+    if (!recruiter && !password.trim()) {
+      setError("Password is required for new recruiters.");
       return;
     }
 
     try {
       setSaving(true);
-      const payload = {
+      const payload: any = {
         companyName: companyName.trim(),
         recruiterId: recruiterId.trim(),
-        password: password.trim(),
         accountExpiryDate,
       };
+      
+      if (password.trim()) {
+        payload.password = password.trim();
+      }
 
       if (recruiter?._id) {
-        // For editing, we'd need an update API - for now just show not implemented
-        setError("Editing recruiters is not yet implemented.");
-        return;
+        await adminAPI.updateRecruiter(recruiter._id, payload);
       } else {
         await adminAPI.createRecruiter(payload);
       }
@@ -108,7 +114,12 @@ export default function RecruiterForm({ recruiter, onClose, onSubmit }: Recruite
               <input
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition"
+                style={{
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-gray-700">
@@ -116,7 +127,12 @@ export default function RecruiterForm({ recruiter, onClose, onSubmit }: Recruite
               <input
                 value={recruiterId}
                 onChange={(e) => setRecruiterId(e.target.value)}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition"
+                style={{
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
               />
             </label>
           </div>
@@ -128,7 +144,12 @@ export default function RecruiterForm({ recruiter, onClose, onSubmit }: Recruite
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition"
+                style={{
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
               />
             </label>
             <label className="space-y-2 text-sm font-medium text-gray-700">
@@ -137,7 +158,12 @@ export default function RecruiterForm({ recruiter, onClose, onSubmit }: Recruite
                 type="date"
                 value={accountExpiryDate}
                 onChange={(e) => setAccountExpiryDate(e.target.value)}
-                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition"
+                style={{
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
               />
             </label>
           </div>

@@ -24,10 +24,8 @@ export default function DeleteRecruiterModal({ recruiter, onClose, onSuccess }: 
     setDeleting(true);
     setError("");
     try {
-      // For now, we'll just show not implemented since we don't have a delete API
-      setError("Deleting recruiters is not yet implemented.");
-      // await adminAPI.deleteRecruiter(recruiter._id);
-      // onSuccess();
+      await adminAPI.deleteRecruiter(recruiter._id);
+      onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || "Failed to delete recruiter.");
     } finally {

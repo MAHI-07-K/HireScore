@@ -75,7 +75,7 @@ export default function RecruitmentPipeline() {
     switch (status) {
       case 'selected': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'text-white' && {backgroundColor: '#8FBC8F'};
       default: return 'bg-yellow-100 text-yellow-800';
     }
   };
@@ -90,7 +90,7 @@ export default function RecruitmentPipeline() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 warm-theme">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Recruitment Pipeline</h1>
@@ -125,7 +125,8 @@ export default function RecruitmentPipeline() {
                       setSelectedCandidate(candidate);
                       setShowModal(true);
                     }}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                    className="text-white px-4 py-2 rounded hover:opacity-90"
+                    style={{backgroundColor: '#E89A3B'}}
                   >
                     Complete Round
                   </button>
@@ -139,7 +140,8 @@ export default function RecruitmentPipeline() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full"
+                    className="h-2 rounded-full"
+                    style={{backgroundColor: '#E89A3B'}}
                     style={{ width: `${getProgressPercentage(candidate)}%` }}
                   ></div>
                 </div>

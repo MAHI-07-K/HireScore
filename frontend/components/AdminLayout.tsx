@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import "@/app/dashboard/warm-theme.css";
 import {
   BarChart3,
   Users,
@@ -42,7 +43,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 warm-theme">
         <div className="text-center p-8 bg-white rounded-xl shadow-md">
           <p className="text-lg font-semibold text-gray-900">Checking authentication...</p>
           <p className="mt-2 text-sm text-gray-600">You will be redirected to login if you are not signed in.</p>
@@ -52,14 +53,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 warm-theme">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? "block" : "hidden"}`}>
         <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setSidebarOpen(false)} />
         <div className="fixed left-0 top-0 bottom-0 w-64 bg-white shadow-lg">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center">
-              <Shield className="h-8 w-8 text-indigo-600" />
+              <Shield className="h-8 w-8" style={{color: '#E89A3B'}} />
               <span className="ml-2 text-xl font-bold text-gray-900">Admin</span>
             </div>
             <button
@@ -78,9 +79,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   className={`flex items-center px-4 py-3 text-sm font-medium ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700 border-r-2 border-indigo-700"
+                      ? "text-gray-900 border-r-2"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
+                  style={isActive ? {backgroundColor: '#FFE0D1', borderColor: '#E89A3B'} : undefined}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
@@ -96,7 +98,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:block">
         <div className="flex flex-col h-full bg-white shadow-lg">
           <div className="flex items-center p-6 border-b">
-            <Shield className="h-8 w-8 text-indigo-600" />
+            <Shield className="h-8 w-8" style={{color: '#E89A3B'}} />
             <span className="ml-2 text-xl font-bold text-gray-900">HireScore Admin</span>
           </div>
           <nav className="flex-1 mt-6">
@@ -108,9 +110,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   className={`flex items-center px-6 py-3 text-sm font-medium ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700 border-r-2 border-indigo-700"
+                      ? "text-gray-900 border-r-2"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
+                  style={isActive ? {backgroundColor: '#FFE0D1', borderColor: '#E89A3B'} : undefined}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
                   {item.name}

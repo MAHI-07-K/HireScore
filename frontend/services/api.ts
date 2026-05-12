@@ -113,6 +113,8 @@ export const adminAPI = {
   getStudentDetail: (studentId: string) => apiClient.get(`/admin/students/${studentId}`),
   getRecruiters: (params?: any) => apiClient.get('/admin/recruiters', { params }),
   createRecruiter: (data: any) => apiClient.post('/admin/create-recruiter', data),
+  updateRecruiter: (recruiterId: string, data: any) => apiClient.put(`/admin/recruiters/${recruiterId}`, data),
+  deleteRecruiter: (recruiterId: string) => apiClient.delete(`/admin/recruiters/${recruiterId}`),
 };
 
 // Drive APIs

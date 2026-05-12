@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { role, description, eligibilityCriteria, totalRounds } = await request.json();
+    const { role, description, minCgpa, requiredSkills, totalRounds } = await request.json();
 
-    if (!role || !description || !eligibilityCriteria || !totalRounds) {
+    if (!role || !description || minCgpa === undefined || !requiredSkills || !totalRounds) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
       companyName: recruiter.companyName,
       role,
       description,
-      eligibilityCriteria,
+      minCgpa: Number(minCgpa),
+      requiredSkills: Array.isArray(requiredSkills) ? requiredSkills : requiredSkills.split(',').map((s: string) => s.trim()).filter(Boolean),
       totalRounds
     });
 

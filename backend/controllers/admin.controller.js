@@ -20,12 +20,14 @@ export const getAdminAnalytics = async (req, res, next) => {
       .map((student) => student.confidenceData?.score || 0)
       .filter((score) => score > 0);
 
-    const hireScores = students
-      .map((student) => student.hireScore || 0)
+    const verifications = await Verification.find({}, { overallScore: 1, verificationStatus: 1 }).lean();
+
+    const hireScores = verifications
+      .map((v) => v.overallScore || 0)
       .filter((score) => score > 0);
 
-    const totalVerifiedStudents = await Verification.countDocuments({
-      verificationStatus: { $in: ["Verified", "Partially Verified"] },
+    const totalVerifiedStudents = await Student.countDocuments({
+      verificationStatus: "completed"
     });
 
     res.json({
@@ -33,7 +35,7 @@ export const getAdminAnalytics = async (req, res, next) => {
       data: {
         totalStudents,
         averageConfidenceScore: getAverage(confidenceScores),
-        averageHireScore: getAverage(hireScores),
+        highestHireScore: hireScores.length > 0 ? Math.max(...hireScores) : 0,
         totalVerifiedStudents,
       },
     });
@@ -282,6 +284,64 @@ export const createRecruiter = async (req, res, next) => {
       }
     });
 
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── PUT /api/admin/recruiters/:recruiterId ────────────────────────────────
+export const updateRecruiter = async (req, res, next) => {
+  try {
+    const { recruiterId } = req.params;
+    const { companyName, password, accountExpiryDate } = req.body;
+
+    const recruiter = await Recruiter.findById(recruiterId);
+    if (!recruiter) {
+      return next(new AppError("Recruiter not found", 404));
+    }
+
+    if (companyName) recruiter.companyName = companyName;
+    if (password) recruiter.password = await bcrypt.hash(password, 12);
+    if (accountExpiryDate) recruiter.accountExpiryDate = new Date(accountExpiryDate);
+
+    if (req.body.recruiterId && req.body.recruiterId !== recruiter.recruiterId) {
+      const existing = await Recruiter.findOne({ recruiterId: req.body.recruiterId });
+      if (existing) {
+        return next(new AppError("Recruiter ID already exists", 400));
+      }
+      recruiter.recruiterId = req.body.recruiterId;
+    }
+
+    await recruiter.save();
+
+    res.json({
+      success: true,
+      message: "Recruiter updated successfully",
+      data: {
+        companyName: recruiter.companyName,
+        recruiterId: recruiter.recruiterId,
+        accountExpiryDate: recruiter.accountExpiryDate
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── DELETE /api/admin/recruiters/:recruiterId ─────────────────────────────
+export const deleteRecruiter = async (req, res, next) => {
+  try {
+    const { recruiterId } = req.params;
+
+    const recruiter = await Recruiter.findByIdAndDelete(recruiterId);
+    if (!recruiter) {
+      return next(new AppError("Recruiter not found", 404));
+    }
+
+    res.json({
+      success: true,
+      message: "Recruiter deleted successfully"
+    });
   } catch (error) {
     next(error);
   }

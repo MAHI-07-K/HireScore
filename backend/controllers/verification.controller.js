@@ -231,10 +231,13 @@ export const submitVerificationController = async (req, res, next) => {
     else if (overallScore > 0) status = "In Progress";
     else status = "Rejected";
 
-    const feedback = [
-      ...(result.aiAnalysis?.concerns ?? []),
-      ...(result.aiAnalysis?.suggestions ?? []),
-    ];
+    const feedback = [];
+    if (result.aiAnalysis?.reasoning) {
+      feedback.push(`Reasoning: ${result.aiAnalysis.reasoning}`);
+    }
+    if (result.aiAnalysis?.suspiciousClaims?.length) {
+      result.aiAnalysis.suspiciousClaims.forEach(claim => feedback.push(`Concern: ${claim}`));
+    }
 
     verification.overallScore = overallScore;
     verification.certificationScore = certScore;

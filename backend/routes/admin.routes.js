@@ -5,6 +5,8 @@ import {
   getAdminStudentDetail,
   getAdminRecruiters,
   createRecruiter,
+  updateRecruiter,
+  deleteRecruiter,
 } from "../controllers/admin.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 
@@ -15,6 +17,12 @@ router.use(protectRoute);
 
 // ─── POST /api/admin/create-recruiter ─────────────────────────────────────
 router.post("/create-recruiter", createRecruiter);
+
+// ─── PUT /api/admin/recruiters/:recruiterId ────────────────────────────────
+router.put("/recruiters/:recruiterId", updateRecruiter);
+
+// ─── DELETE /api/admin/recruiters/:recruiterId ─────────────────────────────
+router.delete("/recruiters/:recruiterId", deleteRecruiter);
 
 // ─── GET /api/admin/recruiters ─────────────────────────────────────────────
 router.get("/recruiters", getAdminRecruiters);

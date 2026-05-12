@@ -133,7 +133,13 @@ export default function AdminStudents() {
                   placeholder="Search by name, roll number, or email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+                  style={{
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+                  onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 />
               </div>
             </form>
@@ -143,14 +149,21 @@ export default function AdminStudents() {
                 placeholder="Filter by skill..."
                 value={skillFilter}
                 onChange={(e) => setSkillFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-4 py-2 border border-gray-300 rounded-lg"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
               />
               <button
                 onClick={() => {
                   setCurrentPage(1);
                   fetchStudents();
                 }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="px-4 py-2 text-white rounded-lg hover:opacity-90 transition"
+                style={{backgroundColor: '#E89A3B'}}
               >
                 <Filter className="h-4 w-4" />
               </button>
@@ -262,7 +275,7 @@ export default function AdminStudents() {
                           {student.skills.slice(0, 3).map((skill, index) => (
                             <span
                               key={index}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#FFE0D1', color: '#C2410C'}}
                             >
                               {skill}
                             </span>

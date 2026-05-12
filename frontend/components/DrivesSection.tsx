@@ -9,18 +9,21 @@ interface LiveDrive {
   companyName: string;
   role: string;
   description: string;
-  eligibilityCriteria: string;
+  minCgpa: number;
+  requiredSkills: string[];
   totalRounds: number;
 }
 
 interface DrivesSectionProps {
   studentId: string;
+  studentProfile?: any;
   canApply: boolean;
   onApplySuccess: () => void;
 }
 
 export default function DrivesSection({
   studentId,
+  studentProfile,
   canApply,
   onApplySuccess,
 }: DrivesSectionProps) {
@@ -67,6 +70,40 @@ export default function DrivesSection({
     return <div className="text-center py-4">Loading live drives...</div>;
   }
 
+  const isEligibleForDrive = (drive: LiveDrive) => {
+    if (!canApply) return false;
+    if (!studentProfile) return false;
+    
+    if (drive.minCgpa !== undefined && (studentProfile.cgpa || 0) < drive.minCgpa) {
+      return false;
+    }
+    
+    if (drive.requiredSkills && drive.requiredSkills.length > 0) {
+      const studentSkills = (studentProfile.skills || []).map((s: string) => s.toLowerCase());
+      const missingSkills = drive.requiredSkills.filter(rs => !studentSkills.includes(rs.toLowerCase()));
+      if (missingSkills.length > 0) return false;
+    }
+    
+    return true;
+  };
+
+  const getEligibilityMessage = (drive: LiveDrive) => {
+    if (!canApply) return "Confidence Score < 60";
+    if (!studentProfile) return "Profile missing";
+    
+    if (drive.minCgpa !== undefined && (studentProfile.cgpa || 0) < drive.minCgpa) {
+      return `Requires CGPA ${drive.minCgpa}`;
+    }
+    
+    if (drive.requiredSkills && drive.requiredSkills.length > 0) {
+      const studentSkills = (studentProfile.skills || []).map((s: string) => s.toLowerCase());
+      const missingSkills = drive.requiredSkills.filter(rs => !studentSkills.includes(rs.toLowerCase()));
+      if (missingSkills.length > 0) return "Missing required skills";
+    }
+    
+    return "Not eligible";
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Live Recruitment Drives</h2>
@@ -94,21 +131,23 @@ export default function DrivesSection({
                 </div>
                 <button
                   onClick={() => handleApplyForDrive(drive._id)}
-                  disabled={applyingDriveId === drive._id || !canApply}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={applyingDriveId === drive._id || !isEligibleForDrive(drive)}
+                  className="text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{backgroundColor: '#E89A3B'}}
                 >
                   {applyingDriveId === drive._id
                     ? 'Applying...'
-                    : canApply
+                    : isEligibleForDrive(drive)
                     ? 'Apply'
-                    : 'Not eligible'}
+                    : getEligibilityMessage(drive)}
                 </button>
               </div>
 
               <p className="text-gray-700 mb-2">{drive.description}</p>
 
               <div className="text-sm text-gray-600">
-                <p><strong>Eligibility:</strong> {drive.eligibilityCriteria}</p>
+                <p><strong>Min CGPA:</strong> {drive.minCgpa || "N/A"}</p>
+                <p><strong>Required Skills:</strong> {drive.requiredSkills && drive.requiredSkills.length > 0 ? drive.requiredSkills.join(", ") : "None"}</p>
                 <p><strong>Rounds:</strong> {drive.totalRounds}</p>
               </div>
             </div>

@@ -38,8 +38,4 @@ const studentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-studentSchema.index({ email: 1 });
-studentSchema.index({ rollNumber: 1 });
-
 export const Student = mongoose.model("Student", studentSchema);

@@ -146,7 +146,7 @@ export default function ManageRounds() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
-      case 'active': return 'bg-blue-100 text-blue-800';
+      case 'active': return 'px-2 py-1 rounded text-white' && {backgroundColor: '#E89A3B'};
       case 'upcoming': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -164,7 +164,8 @@ export default function ManageRounds() {
           <p className="text-gray-600 mb-4">You need to create a drive first before managing rounds.</p>
           <button
             onClick={() => router.push('/recruiter/dashboard')}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            className="text-white px-4 py-2 rounded hover:opacity-90"
+            style={{backgroundColor: '#E89A3B'}}
           >
             Go to Dashboard
           </button>
@@ -174,7 +175,7 @@ export default function ManageRounds() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 warm-theme">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Manage Rounds</h1>
@@ -183,7 +184,8 @@ export default function ManageRounds() {
         <div className="mb-6">
           <button
             onClick={() => setShowCreateForm(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            className="text-white px-4 py-2 rounded hover:opacity-90"
+            style={{backgroundColor: '#E89A3B'}}
           >
             Create Round
           </button>

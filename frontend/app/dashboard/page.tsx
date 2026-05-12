@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { authAPI, verificationAPI } from "@/services/api";
 import DrivesSection from "@/components/DrivesSection";
 import VerificationStatus from "@/components/VerificationStatus";
+import "./warm-theme.css";
 
 interface DashboardData {
   profile: any;
@@ -130,7 +131,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{borderColor: '#E89A3B'}}></div>
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -138,7 +139,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 warm-theme">
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
@@ -167,33 +168,33 @@ export default function Dashboard() {
         {/* Profile Summary Card */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           {/* Profile */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Roll Number</h3>
-            <p className="text-2xl font-bold text-gray-900">{student?.rollNumber}</p>
+          <div className="bg-orange-100 rounded-lg shadow-md p-6 border border-orange-200">
+            <h3 className="text-sm font-medium text-orange-800 mb-2">Roll Number</h3>
+            <p className="text-2xl font-bold text-orange-950">{student?.rollNumber}</p>
           </div>
 
           {/* CGPA */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">CGPA</h3>
-            <p className="text-2xl font-bold text-gray-900">{student?.cgpa.toFixed(2)}</p>
+          <div className="bg-orange-100 rounded-lg shadow-md p-6 border border-orange-200">
+            <h3 className="text-sm font-medium text-orange-800 mb-2">CGPA</h3>
+            <p className="text-2xl font-bold text-orange-950">{student?.cgpa.toFixed(2)}</p>
           </div>
 
           {/* College */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">College</h3>
-            <p className="text-xl font-semibold text-gray-900 truncate">{student?.college || "N/A"}</p>
+          <div className="bg-orange-100 rounded-lg shadow-md p-6 border border-orange-200">
+            <h3 className="text-sm font-medium text-orange-800 mb-2">College</h3>
+            <p className="text-xl font-semibold text-orange-950 truncate">{student?.college || "N/A"}</p>
           </div>
 
           {/* Branch */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Branch</h3>
-            <p className="text-xl font-semibold text-gray-900 truncate">{student?.branch || "N/A"}</p>
+          <div className="bg-orange-100 rounded-lg shadow-md p-6 border border-orange-200">
+            <h3 className="text-sm font-medium text-orange-800 mb-2">Branch</h3>
+            <p className="text-xl font-semibold text-orange-950 truncate">{student?.branch || "N/A"}</p>
           </div>
 
           {/* HireScore */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">HireScore</h3>
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="bg-orange-100 rounded-lg shadow-md p-6 border border-orange-200">
+            <h3 className="text-sm font-medium text-orange-800 mb-2">HireScore</h3>
+            <p className="text-2xl font-bold text-orange-950">
               {dashboardData.profile?.hireScore?.toFixed(1) ?? 0}%
             </p>
           </div>
@@ -268,15 +269,19 @@ export default function Dashboard() {
                 ></div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="space-y-8">
-          <DrivesSection
-            studentId={student?.studentId || ""}
-            canApply={dashboardData?.eligibilityStatus?.isEligible ?? false}
-            onApplySuccess={fetchDashboard}
-          />
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Live Recruitment Drives
+              </h3>
+              <DrivesSection
+                studentId={student?.studentId || ""}
+                studentProfile={dashboardData?.profile}
+                canApply={dashboardData?.eligibilityStatus?.isEligible ?? false}
+                onApplySuccess={fetchDashboard}
+              />
+            </div>
+          </div>
         </div>
       </main>
     </div>

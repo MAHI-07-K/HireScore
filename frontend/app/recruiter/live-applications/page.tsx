@@ -80,7 +80,7 @@ export default function LiveApplications() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 warm-theme">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Live Applications</h1>
@@ -164,7 +164,7 @@ export default function LiveApplications() {
                       <>
                         <button
                           onClick={() => handleSelectCandidate(application._id)}
-                          className="text-indigo-600 hover:text-indigo-900"
+                          className="hover:opacity-80" style={{color: '#E89A3B'}}
                         >
                           Select
                         </button>

@@ -54,23 +54,23 @@ export default function VerificationCard() {
                     d="M18 2.0845
                       a 15.9155 15.9155 0 0 1 0 31.831"
                     fill="none"
-                    stroke="#4f46e5"
+                    stroke="#3b82f6"
                     strokeWidth="2"
                   />
-                  <text x="18" y="20.35" className="percentage text-sm" textAnchor="middle" fill="#4f46e5">
+                  <text x="18" y="20.35" className="percentage text-sm font-bold" textAnchor="middle" fill="#3b82f6">
                     {score}%
                   </text>
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm text-gray-600">Overall Score</p>
-                <p className="text-3xl font-bold text-indigo-600">{score}</p>
+                <p className="text-sm text-gray-500">Overall Score</p>
+                <p className="text-3xl font-bold" style={{color: '#E89A3B'}}>{score}</p>
               </div>
             </div>
           </>
         )}
         <button
-          className="mt-2 self-start bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+          className="mt-2 self-start bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition shadow-md shadow-blue-500/50"
         >
           Manage Verification →
         </button>

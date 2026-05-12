@@ -1,0 +1,74 @@
+/* Frozen Mist Theme */
+/* A light mode theme utilizing gradients and soft mist colors */
+
+/* Main Brand Color (Replacing Indigo with Vibrant Orange Gradients) */
+.frozen-theme .bg-indigo-600 { 
+    background: linear-gradient(135deg, #DD700B 0%, #F08E35 100%) !important; 
+    color: #FFFFFF !important; 
+    border: none !important;
+}
+.frozen-theme .hover\:bg-indigo-700:hover { 
+    background: linear-gradient(135deg, #C2620A 0%, #DD700B 100%) !important; 
+}
+.frozen-theme .text-indigo-600 { color: #DD700B !important; }
+.frozen-theme .hover\:text-indigo-700:hover { color: #C2620A !important; }
+.frozen-theme .bg-indigo-100 { background-color: #FCF8D8 !important; }
+.frozen-theme .text-indigo-700 { color: #DD700B !important; }
+.frozen-theme .text-indigo-800 { color: #DD700B !important; }
+.frozen-theme .border-indigo-200 { border-color: #ADACA7 !important; }
+
+/* Backgrounds (Replacing Grays/Slates/White) */
+.frozen-theme { background: linear-gradient(135deg, #FDE6D5 0%, #D8EBD5 100%) !important; color: #7C7D75 !important; }
+.frozen-theme .bg-gray-50 { background: linear-gradient(135deg, #FDE6D5 0%, #D8EBD5 100%) !important; }
+.frozen-theme .bg-slate-50 { background-color: #FCF8D8 !important; }
+.frozen-theme .bg-white { background-color: #FFFFFF !important; } /* Keep cards white for crispness */
+.frozen-theme .bg-slate-100 { background-color: #D9DADF !important; }
+
+/* Typography (Replacing Dark Grays with Theme Grays) */
+.frozen-theme .text-gray-900 { color: #4A4A45 !important; } /* Darker olive for headings */
+.frozen-theme .text-slate-900 { color: #4A4A45 !important; }
+.frozen-theme .text-slate-800 { color: #7C7D75 !important; }
+.frozen-theme .text-gray-600 { color: #7C7D75 !important; }
+.frozen-theme .text-slate-700 { color: #7C7D75 !important; }
+.frozen-theme .text-slate-600 { color: #ADACA7 !important; }
+.frozen-theme .text-slate-500 { color: #ADACA7 !important; }
+
+/* Borders */
+.frozen-theme .border-slate-200 { border-color: #D9DADF !important; }
+.frozen-theme .border-slate-300 { border-color: #ADACA7 !important; }
+.frozen-theme .border-slate-500 { border-color: #7C7D75 !important; }
+.frozen-theme .border-dashed { border-color: #ADACA7 !important; }
+
+/* Custom Overrides for specific interactive elements */
+.frozen-theme .bg-indigo-600:disabled { background: #ADACA7 !important; color: #FFFFFF !important;}
+
+/* Fix Inputs / Textareas */
+.frozen-theme input, .frozen-theme textarea { 
+    background-color: #FFFFFF !important; 
+    color: #4A4A45 !important; 
+    border-color: #ADACA7 !important; 
+}
+.frozen-theme input::placeholder, .frozen-theme textarea::placeholder {
+    color: #ADACA7 !important;
+}
+
+/* Status Colors */
+.frozen-theme .bg-green-100 { background-color: #D6E8D6 !important; }
+.frozen-theme .text-green-800 { color: #2E5C2E !important; }
+.frozen-theme .text-green-700 { color: #2E5C2E !important; }
+.frozen-theme .bg-green-500 { background: linear-gradient(135deg, #4CAF50 0%, #45A049 100%) !important; }
+
+.frozen-theme .bg-yellow-100 { background-color: #FCF8D8 !important; }
+.frozen-theme .text-yellow-800 { color: #DD700B !important; }
+
+.frozen-theme .bg-red-100 { background-color: #F8D8D8 !important; }
+.frozen-theme .text-red-800 { color: #A03A3A !important; }
+.frozen-theme .bg-red-500 { background: linear-gradient(135deg, #E53935 0%, #D32F2F 100%) !important; }
+.frozen-theme .text-red-700 { color: #A03A3A !important; }
+
+.frozen-theme .bg-gray-200 { background-color: #ADACA7 !important; }
+.frozen-theme .bg-gray-100 { background-color: #D9DADF !important; }
+.frozen-theme .text-gray-800 { color: #7C7D75 !important; }
+
+/* Elegant smooth shadow */
+.frozen-theme .shadow { box-shadow: 0 10px 15px -3px rgba(124, 125, 117, 0.1), 0 4px 6px -2px rgba(124, 125, 117, 0.05) !important; }

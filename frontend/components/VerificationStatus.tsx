@@ -39,22 +39,27 @@ export default function VerificationStatus({
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchResumeData = async () => {
       try {
         if (!studentId) return;
         const response = await studentAPI.getResume();
-        if (response?.data?.parsedData?.projects) {
-          setProjects(response.data.parsedData.projects);
+        const resumeData = response?.data?.data;
+        if (resumeData?.parsedData?.projects) {
+          setProjects(resumeData.parsedData.projects);
+        }
+        if (resumeData?.parsedData?.skills) {
+          setSkills(resumeData.parsedData.skills);
         }
       } catch (err) {
-        // Silently fail - projects are optional
-        console.debug("Failed to fetch projects:", err);
+        // Silently fail - resume data is optional
+        console.debug("Failed to fetch resume data:", err);
       }
     };
 
-    fetchProjects();
+    fetchResumeData();
   }, [studentId, resumeUploaded]);
 
   const normalizedStatus = verificationStatus?.toString().toLowerCase() || "not started";
@@ -190,10 +195,10 @@ export default function VerificationStatus({
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Verification Status</h2>
+        <h2 className="text-xl font-bold text-gray-800">Verification Status</h2>
         <button
           onClick={onRefresh}
-          className="text-indigo-600 hover:text-indigo-700 font-semibold text-sm"
+          className="font-semibold text-sm transition hover:opacity-80" style={{color: '#E89A3B', cursor: 'pointer'}}
         >
           Refresh
         </button>
@@ -212,59 +217,77 @@ export default function VerificationStatus({
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-medium text-slate-600 mb-2">Latest Resume Score</p>
-            <p className="text-3xl font-bold text-slate-900">{lastScore}%</p>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-medium text-gray-500 mb-2">Latest Resume Score</p>
+            <p className="text-3xl font-bold" style={{color: '#E89A3B'}}>{lastScore}%</p>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-medium text-slate-600 mb-2">Risk Level</p>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-medium text-gray-500 mb-2">Risk Level</p>
             <p className={`font-semibold text-lg ${getRiskColor(riskLevel)}`}>{riskLevel}</p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-700 mb-3">Feedback</p>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm font-medium text-gray-700 mb-3">Feedback</p>
           {feedback && feedback.length ? (
-            <ul className="space-y-2 text-sm text-slate-700">
+            <ul className="space-y-2 text-sm text-gray-700">
               {feedback.map((item, index) => (
-                <li key={index} className="rounded-md border border-slate-200 bg-white p-3">
+                <li key={index} className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
                   {item}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-600">No detailed feedback has been generated yet. Upload and validate your resume to see item-level guidance.</p>
+            <p className="text-sm text-gray-500">No detailed feedback has been generated yet. Upload and validate your resume to see item-level guidance.</p>
           )}
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-medium text-slate-700 mb-3">Projects</p>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm font-medium text-gray-700 mb-3">Skills</p>
+          {skills && skills.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full border border-orange-200"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No skills found in your resume. Upload and validate your resume to see extracted skills here.</p>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <p className="text-sm font-medium text-gray-700 mb-3">Projects</p>
           {projects && projects.length > 0 ? (
             <div className="space-y-3">
               {projects.map((project, index) => (
-                <div key={index} className="rounded-md border border-slate-200 bg-white p-3">
+                <div key={index} className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
                   {project.githubUrl ? (
                     <a
                       href={project.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+                      className="text-sm font-semibold hover:opacity-80 hover:underline" style={{color: '#E89A3B'}}
                     >
                       {project.name}
                     </a>
                   ) : (
-                    <p className="text-sm font-semibold text-slate-700">{project.name}</p>
+                    <p className="text-sm font-semibold text-gray-700">{project.name}</p>
                   )}
                   {project.description && (
-                    <p className="text-xs text-slate-600 mt-1">{project.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">{project.description}</p>
                   )}
                   {project.technologies && project.technologies.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {project.technologies.map((tech, techIndex) => (
                         <span
                           key={techIndex}
-                          className="text-xs bg-indigo-100 text-indigo-700 rounded px-2 py-1"
+                          className="text-xs rounded px-2 py-1" style={{backgroundColor: '#FFE0D1', color: '#C2410C'}}
                         >
                           {tech}
                         </span>
@@ -275,7 +298,7 @@ export default function VerificationStatus({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-600">No projects found in your resume. Upload and validate your resume to see extracted projects here.</p>
+            <p className="text-sm text-gray-500">No projects found in your resume. Upload and validate your resume to see extracted projects here.</p>
           )}
         </div>
 
@@ -322,7 +345,7 @@ export default function VerificationStatus({
                   value={githubUsername}
                   onChange={(event) => setGithubUsername(event.target.value)}
                   placeholder="octocat"
-                  className="h-11 rounded-md border border-slate-300 px-3 text-ink outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-indigo-100"
+                  className="h-11 rounded-md border border-slate-300 px-3 text-ink outline-none transition focus:border-warm-500" style={{boxShadow: '0 0 0 2px rgba(232, 154, 59, 0.1)'}}
                 />
               </label>
 
@@ -333,7 +356,7 @@ export default function VerificationStatus({
                   onChange={(event) => setCertificateLinks(event.target.value)}
                   placeholder="One link or certificate ID per line"
                   rows={3}
-                  className="resize-y rounded-md border border-slate-300 px-3 py-2 text-ink outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-indigo-100"
+                  className="resize-y rounded-md border border-slate-300 px-3 py-2 text-ink outline-none transition focus:border-warm-500" style={{boxShadow: '0 0 0 2px rgba(232, 154, 59, 0.1)'}}
                 />
               </label>
             </div>
@@ -348,7 +371,7 @@ export default function VerificationStatus({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 w-full rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="h-11 w-full rounded-md px-4 text-sm font-semibold text-white transition shadow-md hover:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none" style={{backgroundColor: '#E89A3B'}}
           >
             {isSubmitting ? "Uploading resume..." : resumeUploaded ? "Replace resume" : "Upload resume"}
           </button>
@@ -357,7 +380,7 @@ export default function VerificationStatus({
         <button
           onClick={handleVerify}
           disabled={isVerifying}
-          className="h-11 w-full rounded-md bg-indigo-600 px-4 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="h-11 w-full rounded-md bg-orange-500 px-4 text-sm font-semibold text-white transition shadow-md shadow-orange-500/50 hover:bg-orange-600 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
         >
           {isVerifying
             ? "Validating resume..."

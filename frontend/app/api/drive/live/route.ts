@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const drives = await Drive.find({
       isLive: true,
       applicationsOpen: true
-    }).select('companyName role description eligibilityCriteria totalRounds');
+    }).select('companyName role description minCgpa requiredSkills totalRounds');
 
     return NextResponse.json({ drives });
 

@@ -8,7 +8,8 @@ export default function CreateDrive() {
   const [formData, setFormData] = useState({
     role: '',
     description: '',
-    eligibilityCriteria: '',
+    minCgpa: '',
+    requiredSkills: '',
     totalRounds: 1
   });
   const [companyName, setCompanyName] = useState('');
@@ -84,7 +85,13 @@ export default function CreateDrive() {
               required
               value={formData.role}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              style={{
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+              onBlur={(e) => (e.target.style.boxShadow = 'none')}
             />
           </div>
 
@@ -98,21 +105,56 @@ export default function CreateDrive() {
               rows={4}
               value={formData.description}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              style={{
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+              onBlur={(e) => (e.target.style.boxShadow = 'none')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Eligibility Criteria
+              Min CGPA
             </label>
-            <textarea
-              name="eligibilityCriteria"
+            <input
+              type="number"
+              step="0.01"
+              name="minCgpa"
               required
-              rows={3}
-              value={formData.eligibilityCriteria}
+              value={formData.minCgpa}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              placeholder="e.g. 7.5"
+              style={{
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+              onBlur={(e) => (e.target.style.boxShadow = 'none')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Required Skills
+            </label>
+            <input
+              type="text"
+              name="requiredSkills"
+              required
+              value={formData.requiredSkills}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              placeholder="e.g. React, Node.js, Python (comma separated)"
+              style={{
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+              onBlur={(e) => (e.target.style.boxShadow = 'none')}
             />
           </div>
 
@@ -127,7 +169,13 @@ export default function CreateDrive() {
               required
               value={formData.totalRounds}
               onChange={(e) => setFormData({...formData, totalRounds: parseInt(e.target.value)})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              style={{
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 2px #E89A3B')}
+              onBlur={(e) => (e.target.style.boxShadow = 'none')}
             />
           </div>
 
@@ -140,7 +188,7 @@ export default function CreateDrive() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:shadow-md disabled:opacity-50" style={{backgroundColor: '#E89A3B'}}
           >
             {loading ? 'Creating...' : 'Create Drive'}
           </button>

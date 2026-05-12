@@ -180,7 +180,7 @@ export default function RecruitersPage() {
                           <div className="flex items-center space-x-3">
                             <button
                               onClick={() => handleEditRecruiter(recruiter)}
-                              className="text-indigo-600 hover:text-indigo-800 transition-colors"
+                              className="hover:opacity-80 transition-colors" style={{color: '#E89A3B'}}
                               title="Edit recruiter"
                             >
                               <Edit2 className="h-4 w-4" />

@@ -141,7 +141,7 @@ export default function AuthPage() {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
+      className="min-h-screen bg-gradient-to-br from-warm-100 to-warm-200 flex items-center justify-center p-4 warm-theme"
       suppressHydrationWarning
     >
       <div 
@@ -163,9 +163,10 @@ export default function AuthPage() {
             }}
             className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
               isLoginMode
-                ? "bg-indigo-600 text-white"
+                ? "text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
+            style={isLoginMode ? {backgroundColor: '#E89A3B'} : {}}
           >
             Login
           </button>
@@ -176,9 +177,10 @@ export default function AuthPage() {
             }}
             className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
               !isLoginMode
-                ? "bg-indigo-600 text-white"
+                ? "text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
+            style={!isLoginMode ? {backgroundColor: '#E89A3B'} : {}}
           >
             Register
           </button>
@@ -188,7 +190,8 @@ export default function AuthPage() {
           <button
             type="button"
             onClick={handleTestStudentLogin}
-            className="w-full py-2 px-4 rounded-lg font-semibold transition bg-yellow-400 text-gray-900 hover:bg-yellow-500"
+            className="w-full py-2 px-4 rounded-lg font-semibold transition text-gray-900 hover:opacity-90"
+            style={{backgroundColor: '#F9E1A0'}}
             disabled={isLoading}
           >
             {isLoading ? "Logging in test student..." : "Login as Test Student"}
@@ -215,7 +218,13 @@ export default function AuthPage() {
                 value={loginForm.rollNumber}
                 onChange={handleLoginChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Enter your roll number"
               />
             </div>
@@ -230,7 +239,13 @@ export default function AuthPage() {
                 value={loginForm.password}
                 onChange={handleLoginChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Enter your password"
               />
             </div>
@@ -238,7 +253,8 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
+              className="w-full text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 hover:opacity-90"
+              style={{backgroundColor: '#E89A3B'}}
             >
               {isLoading ? "Logging in..." : "Login"}
             </button>
@@ -256,7 +272,13 @@ export default function AuthPage() {
                 value={registerForm.fullName}
                 onChange={handleRegisterChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Your full name"
               />
             </div>
@@ -271,7 +293,13 @@ export default function AuthPage() {
                 value={registerForm.rollNumber}
                 onChange={handleRegisterChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Your roll number"
               />
             </div>
@@ -286,7 +314,13 @@ export default function AuthPage() {
                 value={registerForm.email}
                 onChange={handleRegisterChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Your email"
               />
             </div>
@@ -301,7 +335,13 @@ export default function AuthPage() {
                   name="college"
                   value={registerForm.college}
                   onChange={handleRegisterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-transparent text-sm"
+                  style={{
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                  onBlur={(e) => (e.target.style.boxShadow = 'none')}
                   placeholder="College name"
                 />
               </div>
@@ -314,7 +354,13 @@ export default function AuthPage() {
                   name="branch"
                   value={registerForm.branch}
                   onChange={handleRegisterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-transparent text-sm"
+                  style={{
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                  onBlur={(e) => (e.target.style.boxShadow = 'none')}
                   placeholder="Branch"
                 />
               </div>
@@ -332,7 +378,13 @@ export default function AuthPage() {
                 min="0"
                 max="10"
                 step="0.1"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Your CGPA"
               />
             </div>
@@ -347,7 +399,13 @@ export default function AuthPage() {
                 value={registerForm.password}
                 onChange={handleRegisterChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Create password"
               />
             </div>
@@ -362,7 +420,13 @@ export default function AuthPage() {
                 value={registerForm.confirmPassword}
                 onChange={handleRegisterChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-transparent"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                }}
+                onFocus={(e) => (e.target.style.boxShadow = '0 0 0 3px rgba(232, 154, 59, 0.1), 0 0 0 1px #E89A3B')}
+                onBlur={(e) => (e.target.style.boxShadow = 'none')}
                 placeholder="Confirm password"
               />
             </div>
@@ -370,7 +434,8 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
+              className="w-full text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50 hover:opacity-90"
+              style={{backgroundColor: '#E89A3B'}}
             >
               {isLoading ? "Registering..." : "Register"}
             </button>

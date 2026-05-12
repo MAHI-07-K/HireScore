@@ -154,7 +154,7 @@ export default function AdminStudentDetail() {
           <div className="flex items-center">
             <Link
               href="/admin/students"
-              className="flex items-center text-indigo-600 hover:text-indigo-700"
+              className="flex items-center hover:opacity-80" style={{color: '#E89A3B'}}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Students
@@ -176,7 +176,7 @@ export default function AdminStudentDetail() {
           <div className="flex items-center">
             <Link
               href="/admin/students"
-              className="flex items-center text-indigo-600 hover:text-indigo-700 mr-4"
+              className="flex items-center hover:opacity-80 mr-4" style={{color: '#E89A3B'}}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               Back to Students
@@ -201,7 +201,7 @@ export default function AdminStudentDetail() {
             title="Confidence Score"
             score={student.confidenceScore}
             icon={TrendingUp}
-            color="bg-blue-500"
+            color="bg-warm-600"
           />
           <ScoreCard
             title="HireScore"
@@ -294,7 +294,7 @@ export default function AdminStudentDetail() {
                           href={project.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-lg font-semibold text-indigo-600 hover:text-indigo-700 hover:underline flex items-center"
+                          className="text-lg font-semibold hover:opacity-80 hover:underline flex items-center" style={{color: '#E89A3B'}}
                         >
                           {project.name}
                           <ExternalLink className="h-4 w-4 ml-2" />
@@ -312,7 +312,7 @@ export default function AdminStudentDetail() {
                       {project.technologies.map((tech, techIndex) => (
                         <span
                           key={techIndex}
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: '#FFE0D1', color: '#C2410C'}}
                         >
                           {tech}
                         </span>
