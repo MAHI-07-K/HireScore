@@ -75,7 +75,7 @@ export default function RecruitmentPipeline() {
     switch (status) {
       case 'selected': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
-      case 'completed': return 'text-white' && {backgroundColor: '#8FBC8F'};
+      case 'completed': return 'bg-green-500 text-white';
       default: return 'bg-yellow-100 text-yellow-800';
     }
   };
@@ -141,8 +141,7 @@ export default function RecruitmentPipeline() {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="h-2 rounded-full"
-                    style={{backgroundColor: '#E89A3B'}}
-                    style={{ width: `${getProgressPercentage(candidate)}%` }}
+                    style={{ backgroundColor: '#E89A3B', width: `${getProgressPercentage(candidate)}%` }}
                   ></div>
                 </div>
               </div>

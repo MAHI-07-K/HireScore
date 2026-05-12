@@ -146,7 +146,7 @@ export default function ManageRounds() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
-      case 'active': return 'px-2 py-1 rounded text-white' && {backgroundColor: '#E89A3B'};
+      case 'active': return 'px-2 py-1 rounded text-white bg-orange-500';
       case 'upcoming': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }

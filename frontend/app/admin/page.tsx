@@ -122,7 +122,7 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-              <Users className="h-8 w-8" style={{color: '#E89A3B'}} className="mb-2" />
+              <Users className="h-8 w-8 mb-2" style={{color: '#E89A3B'}} />
               <h3 className="font-medium text-gray-900">View All Students</h3>
               <p className="text-sm text-gray-600">Browse and manage student profiles</p>
             </button>
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-gray-600">Export student data and analytics</p>
             </button>
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-              <CheckCircle className="h-8 w-8" style={{color: '#E89A3B'}} className="mb-2" />
+              <CheckCircle className="h-8 w-8 mb-2" style={{color: '#E89A3B'}} />
               <h3 className="font-medium text-gray-900">Verification Queue</h3>
               <p className="text-sm text-gray-600">Review pending verifications</p>
             </button>
