@@ -14,15 +14,17 @@ dotenv.config();
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = [
-  process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+  process.env.FRONTEND_ORIGIN,
+  "http://localhost:3000",
   "http://localhost:3001",
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || isProduction) {
         callback(null, true);
       } else {
         callback(new Error(`CORS policy does not allow access from origin ${origin}`));
