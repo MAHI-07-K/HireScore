@@ -5,7 +5,6 @@ import { connectDatabase } from "./config/database.js";
 
 dotenv.config();
 
-// For Vercel serverless functions
 export default async function handler(req, res) {
   try {
     // Connect to database if not already connected
@@ -17,9 +16,17 @@ export default async function handler(req, res) {
     return app(req, res);
   } catch (error) {
     console.error("API Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+        error: error.message || String(error),
+        details: "Please verify environment variables like MONGODB_URI are configured in Vercel project settings."
+      });
+    }
   }
 }
+
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
