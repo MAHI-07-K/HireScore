@@ -84,13 +84,20 @@ export default function Dashboard() {
 
     try {
       setIsLoading(true);
-      const [profileResponse, verificationResponse] = await Promise.all([
-        authAPI.getProfile(),
-        verificationAPI.get(student?.studentId || ""),
-      ]);
+      const profileResponse = await authAPI.getProfile();
+      const profile = profileResponse?.data?.data;
 
-      const profile = profileResponse.data.data;
-      const verification = verificationResponse.data.data;
+      let verification: any = null;
+      try {
+        const studentId = student?.studentId || profile?.studentId;
+        if (studentId) {
+          const verificationResponse = await verificationAPI.get(studentId);
+          verification = verificationResponse?.data?.data;
+        }
+      } catch (verr) {
+        console.debug("Verification data optional/pending:", verr);
+      }
+
       const confidenceScore =
         profile?.confidenceData?.score ?? verification?.overallScore ?? 0;
       const latestScore = verification?.overallScore ?? confidenceScore;

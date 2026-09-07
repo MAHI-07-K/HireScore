@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/mongodb';
 import { Student } from '@/lib/models/student.model';
+import '@/lib/models/drive.model';
+import '@/lib/models/resume.model';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +28,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const student = await Student.findById(decoded.studentId).populate('resumeId appliedDrives');
+    let student = null;
+    try {
+      student = await Student.findById(decoded.studentId).populate('resumeId appliedDrives');
+    } catch (popErr) {
+      console.warn('Populate failed, falling back to simple findById:', popErr);
+      student = await Student.findById(decoded.studentId);
+    }
 
     if (!student) {
       return NextResponse.json(
