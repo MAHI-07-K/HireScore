@@ -102,10 +102,13 @@ export const registerStudentController = async (req, res, next) => {
  */
 export const loginStudentController = async (req, res, next) => {
   try {
+    console.log("[LOGIN] Request received:", { rollNumber: req.body.rollNumber });
+
     const { rollNumber, password } = req.body;
 
     // Validate required fields
     if (!rollNumber || !password) {
+      console.log("[LOGIN] Missing fields:", { rollNumber: !!rollNumber, password: !!password });
       throw new AppError("Please provide roll number and password", 400);
     }
 
@@ -114,22 +117,36 @@ export const loginStudentController = async (req, res, next) => {
       rollNumber: rollNumber.toUpperCase(),
     }).select("+password");
 
+    console.log("[LOGIN] Student lookup result:", {
+      found: !!student,
+      rollNumber: rollNumber.toUpperCase(),
+      hasPassword: !!student?.password
+    });
+
     if (!student) {
+      console.log("[LOGIN] Student not found");
       throw new AppError("Invalid roll number or password", 401);
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, student.password);
 
+    console.log("[LOGIN] Password validation:", { isValid: isPasswordValid });
+
     if (!isPasswordValid) {
+      console.log("[LOGIN] Invalid password");
       throw new AppError("Invalid roll number or password", 401);
     }
 
     // Generate token
     const token = generateToken(student._id);
 
+    console.log("[LOGIN] Token generated successfully");
+
     // Return response with mapped fields
     const studentResponse = mapStudentResponse(student);
+
+    console.log("[LOGIN] Login successful for:", student.rollNumber);
 
     res.status(200).json({
       success: true,
@@ -140,6 +157,7 @@ export const loginStudentController = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error("[LOGIN] Error:", error.message, error.stack);
     next(error);
   }
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface RecruiterLayoutProps {
@@ -9,6 +9,11 @@ interface RecruiterLayoutProps {
 
 export default function RecruiterLayout({ children }: RecruiterLayoutProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname === '/recruiter/auth') {
+    return <>{children}</>;
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('recruiterToken');

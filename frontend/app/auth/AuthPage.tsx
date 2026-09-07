@@ -149,9 +149,15 @@ export default function AuthPage() {
         suppressHydrationWarning
       >
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">HireScore</h1>
-          <p className="text-gray-600 mt-2">AI-Powered Resume Verification</p>
+          <p className="text-gray-600 mt-1">AI-Powered Resume Verification</p>
+          <div className="mt-2 text-xs font-medium text-gray-500">
+            Are you an employer?{' '}
+            <Link href="/recruiter/auth" className="text-indigo-600 hover:underline font-semibold">
+              Recruiter Portal →
+            </Link>
+          </div>
         </div>
 
         {/* Tab Buttons */}

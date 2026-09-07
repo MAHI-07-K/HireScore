@@ -26,7 +26,7 @@ const buildUnavailableVerdict = () => ({
 });
 
 const buildPrompt = ({ resume, githubAnalysis, certificateAnalysis, evidence }) => ({
-  model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
+  model: process.env.GROQ_MODEL || "groq/compound-mini",
   temperature: 0.1,
   response_format: { type: "json_object" },
   messages: [

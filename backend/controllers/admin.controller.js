@@ -1,6 +1,7 @@
 import { Student } from "../models/student.model.js";
 import { Verification } from "../models/verification.model.js";
 import { Recruiter } from "../models/recruiter.model.js";
+import { Drive } from "../models/drive.model.js";
 import bcrypt from "bcryptjs";
 import { AppError } from "../utils/AppError.js";
 
@@ -333,14 +334,24 @@ export const deleteRecruiter = async (req, res, next) => {
   try {
     const { recruiterId } = req.params;
 
-    const recruiter = await Recruiter.findByIdAndDelete(recruiterId);
+    const recruiter = await Recruiter.findById(recruiterId);
     if (!recruiter) {
       return next(new AppError("Recruiter not found", 404));
     }
 
+    // Cascade delete all drives created by this recruiter
+    await Drive.deleteMany({
+      $or: [
+        { recruiterId: recruiter.recruiterId },
+        { recruiterId: String(recruiter._id) }
+      ]
+    });
+
+    await Recruiter.findByIdAndDelete(recruiterId);
+
     res.json({
       success: true,
-      message: "Recruiter deleted successfully"
+      message: "Recruiter and associated drives deleted successfully"
     });
   } catch (error) {
     next(error);

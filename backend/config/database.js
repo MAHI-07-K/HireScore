@@ -7,8 +7,10 @@ export const connectDatabase = async () => {
     throw new Error("MONGODB_URI is missing from environment variables");
   }
 
+  console.log("[DB] Connecting to MongoDB...");
+
   mongoose.set("strictQuery", true);
 
   const connection = await mongoose.connect(uri);
-  console.log(`MongoDB connected: ${connection.connection.host}`);
+  console.log(`[DB] MongoDB connected: ${connection.connection.host}`);
 };

@@ -10,7 +10,4 @@ const recruiterSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-recruiterSchema.index({ recruiterId: 1 });
-
 export const Recruiter = mongoose.models.Recruiter || mongoose.model("Recruiter", recruiterSchema);

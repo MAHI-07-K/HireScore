@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     drive.applicationsOpen = false;
+    drive.isLive = false;
     drive.driveStatus = 'applications_closed';
 
     await drive.save();
